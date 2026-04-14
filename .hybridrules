@@ -1,0 +1,39 @@
+# Code One — Project Rules
+# This file is loaded into every AI agent's system prompt as persistent context.
+# Keep it concise. These are rules, not documentation.
+
+## Project Identity
+- Working name: code-one
+- Type: Desktop-first modular AI development platform
+- Repo: Ghenghis/code-one
+- Stack: Electron + React + Monaco + xterm.js + TypeScript + pnpm monorepo
+
+## Architecture Rules
+- 7 tiers (0-7) + Tier 4.5 Automation Fabric
+- No module may depend on a higher-tier module
+- Every major feature lives behind a module boundary
+- shared-types is the only cross-cutting dependency
+
+## Development Rules
+- Research note before implementation
+- ADR before architectural decisions
+- Feature branches per subsystem (feat/*, research/*, fix/*)
+- Conventional commits with subsystem scope
+- No direct pushes to main
+- Tests required for all non-trivial code
+- Proof of working state before claiming completion
+
+## Code Style
+- TypeScript strict mode
+- ESLint + Prettier enforced
+- Prefer interfaces over types for public contracts
+- Prefer composition over inheritance
+- No classes unless state management requires them
+- Keep functions small and focused
+
+## Agent Behavior
+- Verify before claiming completion
+- Use diff preview for file changes
+- Narrow scoped commits only
+- Do not modify files outside the current milestone scope
+- Always check tier boundaries before adding dependencies
