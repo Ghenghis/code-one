@@ -20,6 +20,10 @@ export interface CodeOneAPI {
   setLayout(state: LayoutState): Promise<void>;
   listModules(): Promise<ReadonlyArray<ModuleEntry>>;
   checkPermission(request: PermissionRequest): Promise<PermissionResult>;
+  readFile(filePath: string): Promise<string>;
+  writeFile(filePath: string, content: string): Promise<{ ok: boolean }>;
+  openFolder(): Promise<string | null>;
+  openFileDialog(): Promise<string[]>;
 }
 
 export const API_METHODS: ReadonlyArray<keyof CodeOneAPI> = [
@@ -34,4 +38,8 @@ export const API_METHODS: ReadonlyArray<keyof CodeOneAPI> = [
   "setLayout",
   "listModules",
   "checkPermission",
+  "readFile",
+  "writeFile",
+  "openFolder",
+  "openFileDialog",
 ];

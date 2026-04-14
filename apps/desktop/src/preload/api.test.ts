@@ -15,6 +15,10 @@ describe("Preload API shape", () => {
       "setLayout",
       "listModules",
       "checkPermission",
+      "readFile",
+      "writeFile",
+      "openFolder",
+      "openFileDialog",
     ];
     for (const method of expected) {
       expect(API_METHODS).toContain(method);
@@ -22,6 +26,6 @@ describe("Preload API shape", () => {
   });
 
   it("method count matches expected", () => {
-    expect(API_METHODS.length).toBe(11);
+    expect(API_METHODS.length).toBe(15);
   });
 });
