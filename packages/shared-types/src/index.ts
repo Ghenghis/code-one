@@ -1,18 +1,25 @@
 /**
  * @code-one/shared-types
  *
- * Typed contracts shared across all packages in the Hybrid IDE monorepo.
- * This package contains only type definitions and interfaces — no runtime code.
+ * Typed contracts shared across all packages in the code-one monorepo.
+ * This package contains type definitions, interfaces, and minimal constants.
  *
- * Subsystem contracts will be added as each tier is implemented:
- * - Tier 0: Command bus, module registry, permissions, settings
- * - Tier 1: Editor, workspace, terminal, preview
- * - Tier 2: AI gateway, provider adapters
- * - Tier 3: Context engine, memory
- * - Tier 4: Agent events, modes, tools, task graph
- * - Tier 5: Remote, SSH, deploy
- * - Tier 6: Skills, MCP, plugins
- * - Tier 7: Model lab
+ * Organized by subsystem:
+ * - events: Event bus, agent events, trust levels
+ * - commands: Command bus, command descriptors
+ * - modules: Module registry, lifecycle, manifests
+ * - permissions: Capability-based access control
+ * - settings: Scoped settings with persistence
+ * - layout: Panel arrangement, tabs, layout tree
+ * - ipc: Electron IPC message contracts
+ * - logger: Structured logging
  */
 
-export {};
+export * from "./events.js";
+export * from "./commands.js";
+export * from "./modules.js";
+export * from "./permissions.js";
+export * from "./settings.js";
+export * from "./layout.js";
+export * from "./ipc.js";
+export * from "./logger.js";
