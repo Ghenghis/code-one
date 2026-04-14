@@ -55,17 +55,13 @@ describe("LayoutManager", () => {
     lm.togglePanel("sidebar-left");
     const root = lm.getState().root;
     if (root.kind === "split") {
-      const panel = root.children.find(
-        (c) => c.kind === "panel" && c.id === "sidebar-left",
-      );
+      const panel = root.children.find((c) => c.kind === "panel" && c.id === "sidebar-left");
       expect(panel && panel.kind === "panel" && !panel.visible).toBe(true);
     }
 
     lm.togglePanel("sidebar-left");
     if (root.kind === "split") {
-      const panel = root.children.find(
-        (c) => c.kind === "panel" && c.id === "sidebar-left",
-      );
+      const panel = root.children.find((c) => c.kind === "panel" && c.id === "sidebar-left");
       expect(panel && panel.kind === "panel" && panel.visible).toBe(true);
     }
   });
@@ -76,9 +72,7 @@ describe("LayoutManager", () => {
 
     const root = lm.getState().root;
     if (root.kind === "split") {
-      const panel = root.children.find(
-        (c) => c.kind === "panel" && c.id === "sidebar-left",
-      );
+      const panel = root.children.find((c) => c.kind === "panel" && c.id === "sidebar-left");
       expect(panel && panel.kind === "panel" && panel.weight).toBe(0.35);
     }
   });

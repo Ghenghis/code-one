@@ -7,6 +7,7 @@
 ## 1. Context Compression
 
 ### Problem
+
 LLM context windows are finite. When accumulated context (conversation + repo context + memory) exceeds the model's limit, the system must compress without losing critical information.
 
 ### Strategy: Hierarchical summarization
@@ -14,6 +15,7 @@ LLM context windows are finite. When accumulated context (conversation + repo co
 **Trigger**: When assembled context exceeds 80% of the active model's context window.
 
 **Algorithm**:
+
 1. **Partition** context into priority bands:
    - P0 (never compress): system prompt, active mode instructions, current user message
    - P1 (compress last): current file contents, recent tool results, active diagnostics
@@ -36,21 +38,22 @@ LLM context windows are finite. When accumulated context (conversation + repo co
 ## 2. Subagent Isolation Rules
 
 ### Problem
+
 Subagents execute tasks on behalf of a parent agent. Without isolation rules, subagents could access parent memory, spawn unbounded children, or escalate permissions.
 
 ### Rules
 
-| Rule | Specification |
-|---|---|
-| **Memory access** | Subagent gets a fresh `session` scope. Cannot read parent's session memory. Can read `project` and `global` scopes (read-only). Cannot read other subagents' session scopes. |
-| **Memory write** | Subagent can write to its own session scope only. Writes to `project` or `global` require explicit parent delegation (via `delegateMemoryWrite` in spawn config). |
-| **Spawning children** | Subagents may spawn one level of children (grandchildren). Max depth = 2. Grandchildren cannot spawn further. Enforced by kernel. |
-| **Max concurrent subagents** | 5 per parent agent. Configurable via settings (`agent.maxConcurrentSubagents`). |
-| **Permission inheritance** | Subagent inherits the parent's mode and tool permissions by default. Parent can restrict further (never expand) via spawn config. |
-| **Context** | Subagent receives an explicit context payload from parent (not the full parent context). Parent decides what to share. |
-| **Lifetime** | Subagent is terminated when: (a) it completes, (b) parent is terminated, (c) timeout expires (default 5 minutes, configurable). |
-| **Resource limits** | Subagent has its own cost budget (subset of parent's remaining budget). Token usage counts against parent's session total. |
-| **Event stream** | Subagent has its own event stream, linked to parent's stream via `parentId` on the spawn event. Parent can observe subagent events. |
+| Rule                         | Specification                                                                                                                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Memory access**            | Subagent gets a fresh `session` scope. Cannot read parent's session memory. Can read `project` and `global` scopes (read-only). Cannot read other subagents' session scopes. |
+| **Memory write**             | Subagent can write to its own session scope only. Writes to `project` or `global` require explicit parent delegation (via `delegateMemoryWrite` in spawn config).            |
+| **Spawning children**        | Subagents may spawn one level of children (grandchildren). Max depth = 2. Grandchildren cannot spawn further. Enforced by kernel.                                            |
+| **Max concurrent subagents** | 5 per parent agent. Configurable via settings (`agent.maxConcurrentSubagents`).                                                                                              |
+| **Permission inheritance**   | Subagent inherits the parent's mode and tool permissions by default. Parent can restrict further (never expand) via spawn config.                                            |
+| **Context**                  | Subagent receives an explicit context payload from parent (not the full parent context). Parent decides what to share.                                                       |
+| **Lifetime**                 | Subagent is terminated when: (a) it completes, (b) parent is terminated, (c) timeout expires (default 5 minutes, configurable).                                              |
+| **Resource limits**          | Subagent has its own cost budget (subset of parent's remaining budget). Token usage counts against parent's session total.                                                   |
+| **Event stream**             | Subagent has its own event stream, linked to parent's stream via `parentId` on the spawn event. Parent can observe subagent events.                                          |
 
 ### Spawn contract
 
@@ -58,11 +61,11 @@ Subagents execute tasks on behalf of a parent agent. Without isolation rules, su
 interface SubagentSpawnConfig {
   task: string;
   context: Record<string, unknown>;
-  mode?: ModeId;                    // default: inherit parent
+  mode?: ModeId; // default: inherit parent
   toolRestrictions?: ToolPermissionSet; // default: inherit parent
-  delegateMemoryWrite?: MemoryScope[];  // default: [] (none)
-  timeoutMs?: number;               // default: 300_000 (5 min)
-  budgetUsd?: number;               // default: 10% of parent remaining
+  delegateMemoryWrite?: MemoryScope[]; // default: [] (none)
+  timeoutMs?: number; // default: 300_000 (5 min)
+  budgetUsd?: number; // default: 10% of parent remaining
 }
 ```
 
@@ -171,14 +174,14 @@ CREATE INDEX idx_audit_action ON audit_log(action);
 
 ### Retention policy
 
-| Table | Default retention | Compaction strategy |
-|---|---|---|
-| `events` | 90 days | Delete events older than retention; keep summary events |
-| `sessions` | Indefinite (metadata only) | Purge event data per retention, keep session row |
-| `checkpoints` | Last 10 per session | Auto-prune oldest when limit exceeded |
-| `memory` | Per TTL (0 = permanent) | Periodic sweep of expired entries |
-| `cost_records` | 30 days detailed | Aggregate into daily summaries, drop per-request rows |
-| `audit_log` | Indefinite | No automatic deletion |
+| Table          | Default retention          | Compaction strategy                                     |
+| -------------- | -------------------------- | ------------------------------------------------------- |
+| `events`       | 90 days                    | Delete events older than retention; keep summary events |
+| `sessions`     | Indefinite (metadata only) | Purge event data per retention, keep session row        |
+| `checkpoints`  | Last 10 per session        | Auto-prune oldest when limit exceeded                   |
+| `memory`       | Per TTL (0 = permanent)    | Periodic sweep of expired entries                       |
+| `cost_records` | 30 days detailed           | Aggregate into daily summaries, drop per-request rows   |
+| `audit_log`    | Indefinite                 | No automatic deletion                                   |
 
 ### Concurrency
 
@@ -193,16 +196,19 @@ CREATE INDEX idx_audit_action ON audit_log(action);
 ## 4. Permission Hook Conflict Resolution
 
 ### Problem
+
 Multiple permission hooks may return conflicting decisions for the same capability check. The system needs a deterministic evaluation order.
 
 ### Resolution strategy: Most restrictive wins
 
 **Evaluation order**:
+
 1. **Policy layer** (explicit grants) — checked first. If an explicit `deny` exists, short-circuit to denied.
 2. **Trust level layer** — if no explicit policy, use trust-level defaults.
 3. **Hook layer** — all registered hooks execute in registration order.
 
 **Hook conflict resolution**:
+
 - Hooks return `allow`, `deny`, or `abstain`.
 - If **any** hook returns `deny`, the final result is `deny` (most restrictive wins).
 - If **all** hooks return `allow` (and none deny), the final result is `allow`.
@@ -210,6 +216,7 @@ Multiple permission hooks may return conflicting decisions for the same capabili
 - Hooks that throw are treated as `abstain` (logged as warning, not as deny).
 
 **Hook execution**:
+
 - Hooks execute sequentially in registration order (deterministic).
 - A hook may not override a prior hook's `deny` — deny is final.
 - Maximum 10 hooks per capability check (prevent runaway chains).
@@ -222,44 +229,50 @@ Multiple permission hooks may return conflicting decisions for the same capabili
 ## 5. Cost Governor Behavior
 
 ### Problem
+
 When token spend or API costs exceed configured budgets, the system needs a defined behavior — not just "enforces limits."
 
 ### Budget levels
 
-| Level | Scope | Default | Configurable |
-|---|---|---|---|
-| Per-request | Single LLM call | No limit | Via `maxTokens` on request |
-| Per-session | One agent session | $5.00 | `budget.sessionLimitUsd` |
-| Per-day | Rolling 24h window | $50.00 | `budget.dailyLimitUsd` |
-| Per-month | Calendar month | $500.00 | `budget.monthlyLimitUsd` |
+| Level       | Scope              | Default  | Configurable               |
+| ----------- | ------------------ | -------- | -------------------------- |
+| Per-request | Single LLM call    | No limit | Via `maxTokens` on request |
+| Per-session | One agent session  | $5.00    | `budget.sessionLimitUsd`   |
+| Per-day     | Rolling 24h window | $50.00   | `budget.dailyLimitUsd`     |
+| Per-month   | Calendar month     | $500.00  | `budget.monthlyLimitUsd`   |
 
 ### Enforcement behavior (`onExceeded` strategies)
 
 **`warn` (default for per-session)**:
+
 - Log a warning event to the event stream
 - Show a non-blocking notification in the UI with current spend
 - Allow the request to proceed
 - Warn again at 110%, 125%, 150% of limit
 
 **`downgrade-model` (default for per-day)**:
+
 - Switch to the next cheaper model in the active fallback chain
 - If already on the cheapest model, switch to `warn` behavior
 - Log the model switch as an event
 - Resume normal model selection when spend drops below 80% of limit (new billing period or session)
 
 **`block` (default for per-month)**:
+
 - Reject the request with a `BudgetExceeded` error
 - Show a blocking modal in the UI explaining the limit
 - Provide options: increase limit, switch to local model, wait for reset
 - Agent tasks are paused (not killed) — resume when budget is available
 
 ### Cost calculation
+
 - Costs computed using the `ModelProfile.inputCostPer1M` and `outputCostPer1M` fields
 - Local models (Ollama, llama.cpp, LM Studio) have cost = $0.00
 - Costs are recorded per-request in the `cost_records` table
 - Running totals are cached in memory and reconciled with database on session start
 
 ### UI integration
+
 - Status bar shows current session spend
 - Provider health dashboard shows per-provider cost breakdown
 - Budget alerts are non-blocking notifications (warn) or blocking modals (block)

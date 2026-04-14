@@ -33,10 +33,7 @@ export class CommandBus implements ICommandBus {
     this.commands.delete(commandId);
   }
 
-  async execute(
-    commandId: string,
-    ctx?: Partial<CommandContext>,
-  ): Promise<unknown> {
+  async execute(commandId: string, ctx?: Partial<CommandContext>): Promise<unknown> {
     const reg = this.commands.get(commandId);
     if (!reg) {
       throw new Error(`Command not found: ${commandId}`);

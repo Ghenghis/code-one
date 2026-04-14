@@ -26,17 +26,17 @@ Recommended reading order for new contributors and agents.
 
 Read these before implementing the corresponding tier:
 
-| Note | Tier(s) | Key patterns |
-|---|---|---|
-| [OpenHands](research/openhands.md) | 4 | Append-only event stream, action/observation |
-| [LangGraph](research/langgraph.md) | 4 | Graph orchestration, checkpoints, reducers |
-| [Aider](research/aider.md) | 3 | Repo map, Tree-sitter, PageRank, edit formats |
-| [KiloCode](research/kilocode.md) | 4 | Mode-based permissions, approval gates |
-| [Claude Code](research/claude-code.md) | 4 | Custom modes, scoped autonomy, hooks |
-| [OpenCode](research/opencode.md) | 3-4 | Session persistence, compaction |
-| [Security Sandboxing](research/security-sandboxing.md) | 0, 4 | Isolation, trust models |
-| [Agentic Coding Papers](research/agentic-coding-papers.md) | 2-4 | Academic research |
-| [Pattern Decision Log](research/pattern-decision-log.md) | All | Synthesis of chosen patterns |
+| Note                                                       | Tier(s) | Key patterns                                  |
+| ---------------------------------------------------------- | ------- | --------------------------------------------- |
+| [OpenHands](research/openhands.md)                         | 4       | Append-only event stream, action/observation  |
+| [LangGraph](research/langgraph.md)                         | 4       | Graph orchestration, checkpoints, reducers    |
+| [Aider](research/aider.md)                                 | 3       | Repo map, Tree-sitter, PageRank, edit formats |
+| [KiloCode](research/kilocode.md)                           | 4       | Mode-based permissions, approval gates        |
+| [Claude Code](research/claude-code.md)                     | 4       | Custom modes, scoped autonomy, hooks          |
+| [OpenCode](research/opencode.md)                           | 3-4     | Session persistence, compaction               |
+| [Security Sandboxing](research/security-sandboxing.md)     | 0, 4    | Isolation, trust models                       |
+| [Agentic Coding Papers](research/agentic-coding-papers.md) | 2-4     | Academic research                             |
+| [Pattern Decision Log](research/pattern-decision-log.md)   | All     | Synthesis of chosen patterns                  |
 
 ## Project maps
 

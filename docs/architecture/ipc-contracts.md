@@ -16,6 +16,7 @@ Typed message contracts between Electron main process and renderer process.
 ```
 
 Examples:
+
 - `workspace:read-file`
 - `workspace:write-file`
 - `workspace:list-dir`
@@ -33,13 +34,13 @@ Examples:
 ```typescript
 interface IPCRequest<T = unknown> {
   channel: string;
-  id: string;        // correlation ID for request/response matching
+  id: string; // correlation ID for request/response matching
   payload: T;
 }
 
 interface IPCResponse<T = unknown> {
   channel: string;
-  id: string;        // matches request ID
+  id: string; // matches request ID
   payload?: T;
   error?: { code: string; message: string };
 }

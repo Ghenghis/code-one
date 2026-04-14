@@ -39,11 +39,7 @@ class Logger implements ILogger {
     this.log("warn", message, data);
   }
 
-  error(
-    message: string,
-    error?: unknown,
-    data?: Record<string, unknown>,
-  ): void {
+  error(message: string, error?: unknown, data?: Record<string, unknown>): void {
     const entry: LogEntry = {
       timestamp: Date.now(),
       level: "error",
@@ -63,11 +59,7 @@ class Logger implements ILogger {
     return new Logger(`${this.name}:${name}`, this.factory);
   }
 
-  private log(
-    level: LogLevel,
-    message: string,
-    data?: Record<string, unknown>,
-  ): void {
+  private log(level: LogLevel, message: string, data?: Record<string, unknown>): void {
     this.factory.write({
       timestamp: Date.now(),
       level,

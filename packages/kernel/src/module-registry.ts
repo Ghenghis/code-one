@@ -68,9 +68,7 @@ export class ModuleRegistry implements IModuleRegistry {
         other.status === "active" &&
         other.manifest.dependencies?.includes(moduleId)
       ) {
-        throw new Error(
-          `Cannot unregister ${moduleId}: ${other.manifest.id} depends on it`,
-        );
+        throw new Error(`Cannot unregister ${moduleId}: ${other.manifest.id} depends on it`);
       }
     }
 
@@ -188,9 +186,7 @@ export class ModuleRegistry implements IModuleRegistry {
     for (const depId of entry.manifest.dependencies) {
       const dep = this.modules.get(depId);
       if (!dep) {
-        throw new Error(
-          `Missing dependency: ${entry.manifest.id} requires ${depId}`,
-        );
+        throw new Error(`Missing dependency: ${entry.manifest.id} requires ${depId}`);
       }
       if (dep.status !== "active" && dep.status !== "ready") {
         throw new Error(

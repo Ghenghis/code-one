@@ -11,9 +11,9 @@ labels: bug
 
 ## To reproduce
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Expected behavior
 
@@ -25,10 +25,10 @@ labels: bug
 
 ## Environment
 
-- OS: 
-- Node version: 
-- pnpm version: 
-- Affected package(s): 
+- OS:
+- Node version:
+- pnpm version:
+- Affected package(s):
 
 ## Screenshots / logs
 

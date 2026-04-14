@@ -56,10 +56,7 @@ describe("createKernel", () => {
       }
     });
 
-    kernel.modules.register(
-      { id: "evtest", name: "EventTest", version: "0.1.0", tier: 0 },
-      {},
-    );
+    kernel.modules.register({ id: "evtest", name: "EventTest", version: "0.1.0", tier: 0 }, {});
     await kernel.modules.activateAll();
 
     expect(events.length).toBeGreaterThan(0);

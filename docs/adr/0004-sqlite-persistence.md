@@ -16,6 +16,7 @@ Use SQLite (via better-sqlite3 in Node.js) as the primary local persistence engi
 ## Rationale
 
 SQLite is the most deployed database engine in the world and is specifically designed for the embedded, single-user, local-first access pattern that a desktop application requires:
+
 - Zero configuration, zero server process
 - Single file per database — easy to backup, move, and inspect
 - WAL mode enables concurrent reads with single-writer without blocking
@@ -28,18 +29,22 @@ SQLite is the most deployed database engine in the world and is specifically des
 ## Alternatives considered
 
 **IndexedDB (browser-side)**
+
 - Available in Electron renderer process
 - Rejected: Async-only API adds complexity. Not accessible from main process without IPC bridging. No SQL query capability. Poor fit for structured relational data (event streams, checkpoints, audit logs).
 
 **LevelDB / RocksDB**
+
 - Fast key-value stores
 - Rejected: No relational queries. Would require building query layer on top. No built-in full-text search. LevelDB has known issues with concurrent access.
 
 **PostgreSQL / MySQL (embedded or local)**
+
 - Full relational database
 - Rejected: Requires running a separate server process. Massive overhead for a single-user desktop app. Distribution and auto-setup complexity.
 
 **JSON files**
+
 - Simplest possible persistence
 - Rejected: No concurrent access safety. No querying beyond full read + filter. No transactions. Performance degrades with file size. Acceptable only for small config files (already handled by SettingsManager).
 
@@ -52,6 +57,7 @@ SQLite is the most deployed database engine in the world and is specifically des
 ## Consequences
 
 ### Positive
+
 - Single dependency, no server process to manage
 - Works offline, works on all platforms
 - Fast reads and writes for expected data volumes
@@ -59,11 +65,13 @@ SQLite is the most deployed database engine in the world and is specifically des
 - WAL mode handles the read-heavy, append-mostly workload well
 
 ### Negative
+
 - Single-writer constraint means write-heavy bursts need careful batching
 - Schema migrations must be managed manually (versioned migration files)
 - Binary .sqlite files are not human-readable (need tooling for inspection)
 
 ### Risks
+
 - Database corruption on unclean shutdown (mitigated by WAL mode + checkpointing)
 - Schema drift between app versions (mitigated by versioned migrations with rollback)
 - Large event streams may need periodic compaction (retention policy required)
@@ -80,23 +88,25 @@ SQLite is the most deployed database engine in the world and is specifically des
 
 Core tables (detailed schemas defined at implementation time):
 
-| Table | Purpose | Tier |
-|---|---|---|
-| `events` | Append-only event stream | 4 |
-| `sessions` | Session metadata and lifecycle | 0 |
-| `checkpoints` | Agent state snapshots for restore | 4 |
-| `memory` | Persistent memory entries (Mem0-style) | 3 |
-| `cost_records` | Per-request token/cost tracking | 2 |
-| `audit_log` | Security and action audit trail | 0 |
-| `migrations` | Schema version tracking | 0 |
+| Table          | Purpose                                | Tier |
+| -------------- | -------------------------------------- | ---- |
+| `events`       | Append-only event stream               | 4    |
+| `sessions`     | Session metadata and lifecycle         | 0    |
+| `checkpoints`  | Agent state snapshots for restore      | 4    |
+| `memory`       | Persistent memory entries (Mem0-style) | 3    |
+| `cost_records` | Per-request token/cost tracking        | 2    |
+| `audit_log`    | Security and action audit trail        | 0    |
+| `migrations`   | Schema version tracking                | 0    |
 
 ### Concurrency strategy
+
 - WAL mode enabled at database open
 - Write operations use explicit transactions with retry on SQLITE_BUSY
 - Bulk inserts (event batches) use prepared statements in a single transaction
 - Read operations are lock-free under WAL
 
 ### Retention policy
+
 - Events: configurable retention (default 90 days, compaction removes resolved chains)
 - Sessions: keep metadata indefinitely, purge event data per retention
 - Checkpoints: keep last N per session (default 10), auto-prune older

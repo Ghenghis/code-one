@@ -28,12 +28,15 @@
 ## Consequences
 
 ### Positive
+
 <!-- What becomes easier or possible? -->
 
 ### Negative
+
 <!-- What becomes harder or impossible? -->
 
 ### Risks
+
 <!-- What could go wrong? -->
 
 ## Validation

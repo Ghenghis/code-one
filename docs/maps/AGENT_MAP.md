@@ -16,19 +16,19 @@ Custom Modes      (user-defined via .hybrid-ide/modes.json)
 
 ## Tool Access by Mode
 
-| Tool | Ask | Architect | Code | Debug | Agent |
-|---|---|---|---|---|---|
-| read_file | - | auto | auto | auto | auto |
-| write_file | - | - | approval | - | approval |
-| edit_file | - | - | approval | approval | approval |
-| list_files | - | auto | auto | auto | auto |
-| search_content | - | auto | auto | auto | auto |
-| search_files | - | auto | auto | auto | auto |
-| terminal | - | - | approval | auto | approval |
-| browser | - | - | approval | - | approval |
-| ask_user | - | - | auto | auto | auto |
-| spawn_agent | - | - | - | - | approval |
-| attempt_completion | - | - | auto | auto | auto |
+| Tool               | Ask | Architect | Code     | Debug    | Agent    |
+| ------------------ | --- | --------- | -------- | -------- | -------- |
+| read_file          | -   | auto      | auto     | auto     | auto     |
+| write_file         | -   | -         | approval | -        | approval |
+| edit_file          | -   | -         | approval | approval | approval |
+| list_files         | -   | auto      | auto     | auto     | auto     |
+| search_content     | -   | auto      | auto     | auto     | auto     |
+| search_files       | -   | auto      | auto     | auto     | auto     |
+| terminal           | -   | -         | approval | auto     | approval |
+| browser            | -   | -         | approval | -        | approval |
+| ask_user           | -   | -         | auto     | auto     | auto     |
+| spawn_agent        | -   | -         | -        | -        | approval |
+| attempt_completion | -   | -         | auto     | auto     | auto     |
 
 Legend: `auto` = auto-approved, `approval` = requires user approval, `-` = not available
 
@@ -62,16 +62,16 @@ Release Agent
 
 ## Approval Gates
 
-| Action | Trust Level | Gate |
-|---|---|---|
-| Read file | Trusted | None |
-| Search code | Trusted | None |
-| Write/edit file | Guarded | User approval (diff preview) |
-| Run terminal command | Restricted | User approval (command preview) |
-| Spawn subagent | Restricted | User approval |
-| SSH/remote action | Remote | Always require approval |
-| Deploy action | Remote | Always require approval |
-| Delete file | Guarded | User approval (confirmation) |
+| Action               | Trust Level | Gate                            |
+| -------------------- | ----------- | ------------------------------- |
+| Read file            | Trusted     | None                            |
+| Search code          | Trusted     | None                            |
+| Write/edit file      | Guarded     | User approval (diff preview)    |
+| Run terminal command | Restricted  | User approval (command preview) |
+| Spawn subagent       | Restricted  | User approval                   |
+| SSH/remote action    | Remote      | Always require approval         |
+| Deploy action        | Remote      | Always require approval         |
+| Delete file          | Guarded     | User approval (confirmation)    |
 
 ## Subagent Architecture
 
@@ -106,9 +106,9 @@ UserMessageEvent
 
 ## Memory Scopes
 
-| Scope | Lifetime | Access |
-|---|---|---|
-| Turn memory | Single LLM call | Agent loop only |
-| Session memory | Current conversation | Current session |
-| Project memory | Per workspace | All sessions in workspace |
-| User memory | Cross-workspace | All workspaces for this user |
+| Scope          | Lifetime             | Access                       |
+| -------------- | -------------------- | ---------------------------- |
+| Turn memory    | Single LLM call      | Agent loop only              |
+| Session memory | Current conversation | Current session              |
+| Project memory | Per workspace        | All sessions in workspace    |
+| User memory    | Cross-workspace      | All workspaces for this user |

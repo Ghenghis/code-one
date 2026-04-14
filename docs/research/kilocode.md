@@ -18,7 +18,9 @@ Mode-based agent systems with configurable tool permission sets provide clean se
 ## How we adapt it
 
 ### Mode System (Agent Core, Tier 4)
+
 Built-in modes with tool permission sets:
+
 - **Ask**: No tools, conversational Q&A only
 - **Architect**: Read-only tools, produces plans
 - **Code**: Full read/write, approval required for writes
@@ -26,7 +28,9 @@ Built-in modes with tool permission sets:
 - **Agent**: Full autonomy with approval gates
 
 ### Custom Modes
+
 Users define custom modes in `.hybrid-ide/modes.json`:
+
 ```json
 {
   "slug": "reviewer",
@@ -38,12 +42,15 @@ Users define custom modes in `.hybrid-ide/modes.json`:
 ```
 
 ### Permission Model
+
 Three layers:
+
 1. Mode defines available tools
 2. Auto-approve rules per tool
 3. Programmable hooks for runtime decisions
 
 ### Project Rules
+
 `.hybridrules` file (our equivalent of `.kilocoderules`) injects persistent project-level instructions into the system prompt.
 
 ## What we will not copy

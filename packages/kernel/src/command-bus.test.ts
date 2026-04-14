@@ -6,10 +6,7 @@ describe("CommandBus", () => {
     const bus = new CommandBus();
     const handler = vi.fn().mockReturnValue("done");
 
-    bus.register(
-      { id: "test:cmd", title: "Test Command" },
-      handler,
-    );
+    bus.register({ id: "test:cmd", title: "Test Command" }, handler);
 
     const result = await bus.execute("test:cmd");
     expect(handler).toHaveBeenCalledTimes(1);
@@ -41,9 +38,7 @@ describe("CommandBus", () => {
   it("throws when executing unknown command", async () => {
     const bus = new CommandBus();
 
-    await expect(bus.execute("nope")).rejects.toThrow(
-      "Command not found: nope",
-    );
+    await expect(bus.execute("nope")).rejects.toThrow("Command not found: nope");
   });
 
   it("unregisters a command", () => {
@@ -72,10 +67,7 @@ describe("CommandBus", () => {
 
   it("gets a specific command descriptor", () => {
     const bus = new CommandBus();
-    bus.register(
-      { id: "test:cmd", title: "Test", keybinding: "Ctrl+T" },
-      vi.fn(),
-    );
+    bus.register({ id: "test:cmd", title: "Test", keybinding: "Ctrl+T" }, vi.fn());
 
     const desc = bus.get("test:cmd");
     expect(desc?.keybinding).toBe("Ctrl+T");

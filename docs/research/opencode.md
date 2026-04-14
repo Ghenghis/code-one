@@ -19,7 +19,9 @@ Clean tool registries with typed interfaces and SQLite-based session persistence
 ## How we adapt it
 
 ### Tool Registry (Agent Core, Tier 4)
+
 Each tool implements a typed interface:
+
 ```typescript
 interface Tool {
   name: string;
@@ -28,23 +30,29 @@ interface Tool {
   execute(input: unknown): Promise<ToolResult>;
 }
 ```
+
 Tools registered in a central registry at startup. Agent passes tool schemas to LLM.
 
 ### Session Storage
+
 SQLite for session persistence:
+
 - Sessions as first-class entities with metadata
 - Message threads linked to sessions
 - EventStream events persisted per session
 - Lightweight, embedded, no external database required
 
 ### Context Compaction (Context Engine, Tier 3)
+
 When context exceeds budget:
+
 - Summarize older conversation turns
 - Shrink repo map to top-ranked items
 - Drop low-relevance retrieved files
 - Preserve most recent messages and active file context
 
 ### Project Instructions
+
 `.hybridrules` file loaded as system prompt context.
 
 ## What we will not copy

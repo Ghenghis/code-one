@@ -20,20 +20,20 @@ pnpm test
 
 All work happens on branches. Never push directly to `main`.
 
-| Pattern | Use for |
-|---|---|
-| `feat/kernel-*` | Tier 0 kernel features |
-| `feat/core-ide-*` | Tier 1 IDE features |
-| `feat/ai-*` | Tier 2 AI coding features |
-| `feat/intelligence-*` | Tier 3 intelligence features |
-| `feat/agent-*` | Tier 4 agent features |
-| `feat/automation-*` | Tier 4.5 automation fabric |
-| `feat/remote-*` | Tier 5 remote/devops features |
-| `feat/skills-*` | Tier 6 skills/MCP/plugins |
-| `feat/model-*` | Tier 7 model lab features |
-| `research/*` | Source reviews, experiment spikes |
-| `fix/*` | Bug fixes |
-| `release/*` | Release stabilization |
+| Pattern               | Use for                           |
+| --------------------- | --------------------------------- |
+| `feat/kernel-*`       | Tier 0 kernel features            |
+| `feat/core-ide-*`     | Tier 1 IDE features               |
+| `feat/ai-*`           | Tier 2 AI coding features         |
+| `feat/intelligence-*` | Tier 3 intelligence features      |
+| `feat/agent-*`        | Tier 4 agent features             |
+| `feat/automation-*`   | Tier 4.5 automation fabric        |
+| `feat/remote-*`       | Tier 5 remote/devops features     |
+| `feat/skills-*`       | Tier 6 skills/MCP/plugins         |
+| `feat/model-*`        | Tier 7 model lab features         |
+| `research/*`          | Source reviews, experiment spikes |
+| `fix/*`               | Bug fixes                         |
+| `release/*`           | Release stabilization             |
 
 ## Commit style
 

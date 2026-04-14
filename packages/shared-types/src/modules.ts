@@ -34,13 +34,13 @@ export interface ModuleManifest {
 // ---------------------------------------------------------------------------
 
 export type ModuleStatus =
-  | "registered"  // manifest accepted, not yet initialized
+  | "registered" // manifest accepted, not yet initialized
   | "initializing" // init() in progress
-  | "ready"       // initialized, dependencies satisfied
-  | "active"      // fully running
+  | "ready" // initialized, dependencies satisfied
+  | "active" // fully running
   | "deactivating" // shutdown in progress
-  | "disposed"    // cleaned up
-  | "error";      // lifecycle failure
+  | "disposed" // cleaned up
+  | "error"; // lifecycle failure
 
 export interface ModuleLifecycle {
   /** Called when the module is first loaded. Set up internal state. */

@@ -17,16 +17,20 @@ Append-only event streams work as the single source of truth for agent execution
 ## How we adapt it
 
 ### EventStream Architecture
+
 Adopt the append-only EventStream as our agent event bus (Tier 4). Events include:
+
 - `ToolCallEvent`, `ToolResultEvent` — tool invocation cycle
 - `ApprovalRequestEvent`, `ApprovalResponseEvent` — human-in-the-loop
 - `CheckpointEvent` — state snapshots for rollback
 - `SubagentSpawnEvent`, `SubagentResultEvent` — hierarchical agents
 
 ### Agent Loop
+
 Adopt the controller loop pattern: `agent.step(state)` returns an Action, runtime executes it, produces Observation, appends to EventStream, loops.
 
 ### Sandbox
+
 Adopt isolated execution for agent-generated code. Start with process-level isolation, evolve to Docker/WASM containers.
 
 ## What we will not copy

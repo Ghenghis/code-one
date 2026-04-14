@@ -85,9 +85,7 @@ export class LayoutManager implements ILayoutManager {
     if (!group) return;
 
     // Don't duplicate tabs for the same URI
-    const existing = tab.uri
-      ? group.tabs.find((t) => t.uri === tab.uri)
-      : undefined;
+    const existing = tab.uri ? group.tabs.find((t) => t.uri === tab.uri) : undefined;
     if (existing) {
       group.activeTabId = existing.id;
     } else {
@@ -113,8 +111,7 @@ export class LayoutManager implements ILayoutManager {
 
     // Move active tab if we closed the active one
     if (group.activeTabId === tabId) {
-      group.activeTabId =
-        group.tabs[Math.min(index, group.tabs.length - 1)]?.id;
+      group.activeTabId = group.tabs[Math.min(index, group.tabs.length - 1)]?.id;
     }
 
     this.notify({
@@ -148,8 +145,7 @@ export class LayoutManager implements ILayoutManager {
   }
 
   toggleSidebar(position: "left" | "right" | "bottom"): void {
-    this.state.sidebarCollapsed[position] =
-      !this.state.sidebarCollapsed[position];
+    this.state.sidebarCollapsed[position] = !this.state.sidebarCollapsed[position];
     this.notify({
       type: "panel-toggled",
       state: this.state,
@@ -223,9 +219,7 @@ export class LayoutManager implements ILayoutManager {
 
   private removePanelFromNode(node: LayoutNode, panelId: string): boolean {
     if (node.kind !== "split") return false;
-    const index = node.children.findIndex(
-      (c) => c.kind === "panel" && c.id === panelId,
-    );
+    const index = node.children.findIndex((c) => c.kind === "panel" && c.id === panelId);
     if (index >= 0) {
       node.children.splice(index, 1);
       return true;
