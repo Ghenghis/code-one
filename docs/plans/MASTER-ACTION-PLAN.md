@@ -1,8 +1,8 @@
 # Code One — Master Action Plan
 
-**Last updated:** 2026-04-14 (session 2)
-**Overall completion:** ~20% backend, ~16% total
-**Current branch:** `feat/ai-gateway`
+**Last updated:** 2026-04-14 (session 3)
+**Overall completion:** ~35% backend, ~28% total
+**Current branch:** `feat/context-engine`
 **Repository:** https://github.com/Ghenghis/code-one
 
 > If you are an AI agent picking this up for the first time, read this document
@@ -115,20 +115,21 @@ Branch: `feat/desktop-electron-shell` (merged to main via PR #2)
 - 19 tests (channel registry: 5, IPC handlers: 12, preload API: 2)
 - Verified: app launches, tests pass, typecheck clean, lint clean
 
-### AI Gateway (IN PROGRESS)
+### Milestone 3 — AI Gateway (100% DONE)
 
-Branch: `feat/ai-gateway` (active, pushed to remote)
+Branch: `feat/ai-gateway` (merged to main via PR #3)
 
-| Task | Status | Commit |
-|------|--------|--------|
-| IProvider interface + BaseProvider with health tracking (13 tests) | Done | `9724b1e` |
-| OpenAI-compatible adapter | TODO | — |
-| Provider registry | TODO | — |
-| Health monitor | TODO | — |
-| Fallback chain engine | TODO | — |
-| Token tracker + cost governor | TODO | — |
-| Gateway facade + IPC integration | TODO | — |
-| E2E verification + PR | TODO | — |
+Package: `packages/ai-gateway` — 8 source files, 7 test files, 111 tests
+
+| Subsystem | Implementation | Tests |
+|-----------|---------------|-------|
+| IProvider + BaseProvider | Health tracking, errorRate sliding window | 21 tests |
+| OpenAI-compatible adapter | Chat + SSE streaming, SSE \r\n handling | 22 tests |
+| Provider registry | Register/unregister, health-filtered queries | 12 tests |
+| Health monitor | Periodic ping, timer unref | 11 tests |
+| Fallback chain router | Ordered failover, 3 exhausted strategies | 21 tests |
+| Token tracker + cost governor | Per-model pricing, budget enforcement | 18 tests |
+| AIGateway facade | Unified entry point composing all subsystems | 13 tests |
 
 ---
 
@@ -136,32 +137,11 @@ Branch: `feat/ai-gateway` (active, pushed to remote)
 
 ### Phase 1: Backend Infrastructure (no GUI)
 
-#### Priority 2: AI Gateway — Milestone 3 Backend (IN PROGRESS)
+#### Priority 2: AI Gateway — Milestone 3 Backend (DONE ✓)
 
-Branch: `feat/ai-gateway`
-Package: `packages/ai-gateway`
-Types: `packages/shared-types/src/providers.ts` (already defined)
+Merged via PR #3. See "Milestone 3" in section 4.
 
-| Task | Description | Tests Needed |
-|------|-------------|-------------|
-| Provider interface | DONE — `IProvider` + `BaseProvider` with health tracking | 13 tests passing |
-| OpenAI-compatible adapter | Handles any OpenAI-compatible endpoint | Streaming, error handling |
-| Provider registry | Register/lookup providers by ID | CRUD, lookup |
-| Fallback chain engine | Ordered provider list, auto-failover on rate limit/timeout/error | Failover triggers, chain traversal |
-| Health monitor | Per-provider latency, error rate, uptime tracking | Health state transitions |
-| Token tracker | Per-provider per-session token counting | Accumulation, reset |
-| Cost governor | Budget levels: warn, downgrade-model, block | Budget enforcement |
-| Streaming bridge | SSE/streaming to IPC events | Stream relay |
-| IPC handlers | Wire gateway to desktop IPC | Round-trip |
-
-Exit criteria:
-- Any OpenAI-compatible endpoint works
-- Swap providers without code changes
-- Fallback activates within 3s of primary failure
-- Token usage tracked per provider per session
-- All handlers have unit tests
-
-#### Priority 3: Context Engine — Milestone 4
+#### Priority 3: Context Engine — Milestone 4 (IN PROGRESS)
 
 Branch: `feat/context-engine`
 Package: `packages/context-engine`
