@@ -112,7 +112,13 @@ export class OpenAICompatibleProvider extends BaseProvider {
   }
 
   private _modelId(request: ChatRequest): string {
-    return request.modelOverride ?? this.config.models[0] ?? "gpt-4o";
+    const model = request.modelOverride ?? this.config.models[0];
+    if (!model) {
+      throw new Error(
+        `Provider "${this.config.id}" has no models configured and no modelOverride was given`,
+      );
+    }
+    return model;
   }
 
   // -- public API -----------------------------------------------------------
@@ -147,10 +153,16 @@ export class OpenAICompatibleProvider extends BaseProvider {
     const data = (await res.json()) as OpenAIChatResponse;
     const totalMs = Date.now() - startMs;
 
+    if (!data.choices || data.choices.length === 0) {
+      const err = "Empty choices array in response";
+      this.recordFailure(err);
+      throw new Error(err);
+    }
+
     this.recordSuccess(totalMs);
 
     return {
-      content: data.choices[0]?.message?.content ?? "",
+      content: data.choices[0].message?.content ?? "",
       modelId: data.model ?? modelId,
       providerId: this.config.id,
       usage: toTokenUsage(data.usage),
@@ -194,6 +206,8 @@ export class OpenAICompatibleProvider extends BaseProvider {
     const decoder = new TextDecoder();
     let buffer = "";
     let lastUsage: TokenUsage | undefined;
+    let chunksYielded = 0;
+    let streamError: unknown;
 
     try {
       while (true) {
@@ -201,7 +215,8 @@ export class OpenAICompatibleProvider extends BaseProvider {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
+        // Handle both \r\n and \n line endings (SSE spec allows both)
+        const lines = buffer.split(/\r?\n/);
         buffer = lines.pop() ?? "";
 
         for (const line of lines) {
@@ -219,8 +234,8 @@ export class OpenAICompatibleProvider extends BaseProvider {
 
           if (!firstChunkMs) firstChunkMs = Date.now() - startMs;
 
-          const delta = chunk.choices[0]?.delta?.content ?? "";
-          const isDone = chunk.choices[0]?.finish_reason != null;
+          const delta = chunk.choices?.[0]?.delta?.content ?? "";
+          const isDone = chunk.choices?.[0]?.finish_reason != null;
 
           if (chunk.usage) {
             lastUsage = toTokenUsage(chunk.usage);
@@ -234,14 +249,23 @@ export class OpenAICompatibleProvider extends BaseProvider {
           };
           if (isDone && lastUsage) out.usage = lastUsage;
 
+          chunksYielded++;
           yield out;
         }
       }
+    } catch (err) {
+      streamError = err;
+      throw err;
     } finally {
       reader.releaseLock();
+      if (!streamError && chunksYielded > 0) {
+        this.recordSuccess(Date.now() - startMs);
+      } else if (streamError) {
+        this.recordFailure(
+          streamError instanceof Error ? streamError.message : String(streamError),
+        );
+      }
     }
-
-    this.recordSuccess(Date.now() - startMs);
   }
 
   async ping(): Promise<boolean> {

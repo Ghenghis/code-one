@@ -32,7 +32,9 @@ export abstract class BaseProvider implements IProvider {
   readonly config: ProviderConfig;
   private _health: ProviderHealth;
   private _latencies: number[] = [];
-  private static readonly MAX_LATENCY_SAMPLES = 100;
+  /** Sliding window of request outcomes: true = success, false = failure */
+  private _outcomes: boolean[] = [];
+  private static readonly MAX_SAMPLES = 100;
 
   constructor(config: ProviderConfig) {
     this.config = config;
@@ -53,11 +55,16 @@ export abstract class BaseProvider implements IProvider {
 
   recordSuccess(latencyMs: number): void {
     this._latencies.push(latencyMs);
-    if (this._latencies.length > BaseProvider.MAX_LATENCY_SAMPLES) {
+    if (this._latencies.length > BaseProvider.MAX_SAMPLES) {
       this._latencies.shift();
+    }
+    this._outcomes.push(true);
+    if (this._outcomes.length > BaseProvider.MAX_SAMPLES) {
+      this._outcomes.shift();
     }
     this._health.avgLatencyMs =
       this._latencies.reduce((a, b) => a + b, 0) / this._latencies.length;
+    this._health.errorRate = this._computeErrorRate();
     this._health.lastSuccessAt = Date.now();
     this._health.lastError = null;
     this._health.consecutiveFailures = 0;
@@ -65,9 +72,20 @@ export abstract class BaseProvider implements IProvider {
   }
 
   recordFailure(error: string): void {
+    this._outcomes.push(false);
+    if (this._outcomes.length > BaseProvider.MAX_SAMPLES) {
+      this._outcomes.shift();
+    }
     this._health.lastError = error;
+    this._health.errorRate = this._computeErrorRate();
     this._health.consecutiveFailures += 1;
     this._health.status = this._computeStatus();
+  }
+
+  private _computeErrorRate(): number {
+    if (this._outcomes.length === 0) return 0;
+    const failures = this._outcomes.filter((ok) => !ok).length;
+    return failures / this._outcomes.length;
   }
 
   private _computeStatus(): ProviderStatus {

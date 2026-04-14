@@ -43,6 +43,10 @@ export class HealthMonitor {
   start(): void {
     if (this._timer) return;
     this._timer = setInterval(() => this.checkAll(), this._intervalMs);
+    // Allow process to exit even if health checks are running
+    if (this._timer && typeof this._timer === "object" && "unref" in this._timer) {
+      (this._timer as NodeJS.Timeout).unref();
+    }
   }
 
   /** Stop periodic health checks */

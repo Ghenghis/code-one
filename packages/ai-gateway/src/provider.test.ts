@@ -100,6 +100,12 @@ describe("BaseProvider", () => {
       p.recordSuccess(100);
       expect(p.health.consecutiveFailures).toBe(0);
     });
+
+    it("updates errorRate on success", () => {
+      const p = new TestProvider(testConfig());
+      p.recordSuccess(100);
+      expect(p.health.errorRate).toBe(0);
+    });
   });
 
   describe("recordFailure", () => {
@@ -121,6 +127,36 @@ describe("BaseProvider", () => {
       const p = new TestProvider(testConfig());
       for (let i = 0; i < 5; i++) p.recordFailure("err");
       expect(p.health.status).toBe("down");
+    });
+
+    it("updates errorRate on failure", () => {
+      const p = new TestProvider(testConfig());
+      p.recordFailure("err");
+      expect(p.health.errorRate).toBe(1);
+    });
+  });
+
+  describe("errorRate sliding window", () => {
+    it("computes errorRate from mixed outcomes", () => {
+      const p = new TestProvider(testConfig());
+      p.recordSuccess(100);
+      p.recordSuccess(100);
+      p.recordFailure("err");
+      p.recordSuccess(100);
+      // 1 failure out of 4 = 0.25
+      expect(p.health.errorRate).toBe(0.25);
+    });
+
+    it("returns 0 errorRate when all successes", () => {
+      const p = new TestProvider(testConfig());
+      for (let i = 0; i < 10; i++) p.recordSuccess(100);
+      expect(p.health.errorRate).toBe(0);
+    });
+
+    it("returns 1 errorRate when all failures", () => {
+      const p = new TestProvider(testConfig());
+      for (let i = 0; i < 5; i++) p.recordFailure("err");
+      expect(p.health.errorRate).toBe(1);
     });
   });
 

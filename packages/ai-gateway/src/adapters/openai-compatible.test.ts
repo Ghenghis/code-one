@@ -136,6 +136,32 @@ describe("OpenAICompatibleProvider", () => {
       expect(provider.health.consecutiveFailures).toBe(1);
       expect(provider.health.lastError).toContain("429");
     });
+
+    it("throws on empty choices array", async () => {
+      fetchSpy.mockResolvedValueOnce(
+        jsonResponse({
+          id: "c-1",
+          choices: [],
+          model: "gpt-4o",
+        }),
+      );
+
+      const provider = new OpenAICompatibleProvider(testConfig());
+      await expect(provider.chat(makeRequest())).rejects.toThrow("Empty choices");
+      expect(provider.health.consecutiveFailures).toBe(1);
+    });
+
+    it("throws on missing choices field", async () => {
+      fetchSpy.mockResolvedValueOnce(
+        jsonResponse({
+          id: "c-1",
+          model: "gpt-4o",
+        }),
+      );
+
+      const provider = new OpenAICompatibleProvider(testConfig());
+      await expect(provider.chat(makeRequest())).rejects.toThrow("Empty choices");
+    });
   });
 
   // ---- chatStream() -------------------------------------------------------
@@ -198,6 +224,43 @@ describe("OpenAICompatibleProvider", () => {
           // should not reach here
         }
       }).rejects.toThrow("HTTP 500");
+    });
+
+    it("records success after full stream consumption", async () => {
+      const sseData = [
+        'data: {"id":"c-1","choices":[{"delta":{"content":"Hi"},"finish_reason":null}],"model":"gpt-4o"}\n\n',
+        'data: {"id":"c-1","choices":[{"delta":{},"finish_reason":"stop"}],"model":"gpt-4o"}\n\n',
+        "data: [DONE]\n\n",
+      ];
+      fetchSpy.mockResolvedValueOnce(sseResponse(sseData));
+
+      const provider = new OpenAICompatibleProvider(testConfig());
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _chunk of provider.chatStream(makeRequest({ stream: true }))) {
+        // consume all
+      }
+
+      expect(provider.health.status).toBe("healthy");
+      expect(provider.health.lastSuccessAt).toBeGreaterThan(0);
+    });
+
+    it("handles \\r\\n line endings in SSE", async () => {
+      const sseData = [
+        'data: {"id":"c-1","choices":[{"delta":{"content":"Hi"},"finish_reason":null}],"model":"gpt-4o"}\r\n\r\n',
+        'data: {"id":"c-1","choices":[{"delta":{},"finish_reason":"stop"}],"model":"gpt-4o"}\r\n\r\n',
+        "data: [DONE]\r\n\r\n",
+      ];
+      fetchSpy.mockResolvedValueOnce(sseResponse(sseData));
+
+      const provider = new OpenAICompatibleProvider(testConfig());
+      const chunks: Array<{ delta: string; done: boolean }> = [];
+      for await (const chunk of provider.chatStream(makeRequest({ stream: true }))) {
+        chunks.push(chunk);
+      }
+
+      expect(chunks.length).toBe(2);
+      expect(chunks[0].delta).toBe("Hi");
+      expect(chunks[1].done).toBe(true);
     });
   });
 
@@ -379,6 +442,11 @@ describe("OpenAICompatibleProvider", () => {
 
       const sentBody = JSON.parse(fetchSpy.mock.calls[0][1].body);
       expect(sentBody.model).toBe("gpt-4o-mini");
+    });
+
+    it("throws when no models configured and no override", async () => {
+      const provider = new OpenAICompatibleProvider(testConfig({ models: [] }));
+      await expect(provider.chat(makeRequest())).rejects.toThrow("no models configured");
     });
 
     it("falls back to first config model when no override", async () => {
