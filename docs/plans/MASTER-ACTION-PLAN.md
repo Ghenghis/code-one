@@ -1,8 +1,8 @@
 # Code One — Master Action Plan
 
-**Last updated:** 2026-04-14
-**Overall completion:** ~15% backend, ~12% total
-**Current branch:** `feat/desktop-electron-shell`
+**Last updated:** 2026-04-14 (session 2)
+**Overall completion:** ~20% backend, ~16% total
+**Current branch:** `feat/ai-gateway`
 **Repository:** https://github.com/Ghenghis/code-one
 
 > If you are an AI agent picking this up for the first time, read this document
@@ -104,21 +104,31 @@ Package: `packages/shared-types` — 9 type definition files
 
 Package: `packages/test-harness` — Shared test utilities (createTempDir, waitFor, deferred, captureConsole)
 
-### Electron Shell (IN PROGRESS — ~75%)
+### Milestone 2 Infra — Electron Shell (100% DONE)
 
-Branch: `feat/desktop-electron-shell` (active, pushed to remote)
+Branch: `feat/desktop-electron-shell` (merged to main via PR #2)
+
+- Electron Forge + Vite plugin build tooling
+- 11 typed IPC channels delegating to kernel subsystems
+- Preload script with contextBridge `window.codeone` API (11 methods)
+- Main process bootstrapping kernel with clean shutdown
+- 19 tests (channel registry: 5, IPC handlers: 12, preload API: 2)
+- Verified: app launches, tests pass, typecheck clean, lint clean
+
+### AI Gateway (IN PROGRESS)
+
+Branch: `feat/ai-gateway` (active, pushed to remote)
 
 | Task | Status | Commit |
 |------|--------|--------|
-| Electron Forge dependencies | Done | `558333a` |
-| Forge + Vite configuration | Done | `c7e22c7` |
-| IPC channel registry (11 channels, 5 tests) | Done | `a4ceb79` |
-| IPC handler factory (10 handlers, 12 tests) | Done | `41b2ae6` |
-| Preload script + typed API (11 methods, 2 tests) | Done | `a9a80bf` |
-| Design docs committed | Done | `2954f87` |
-| Main process entry (kernel bootstrap, IPC wiring) | Done | `1eae2a7` |
-| Minimal renderer placeholder | TODO | — |
-| End-to-end verification | TODO | — |
+| IProvider interface + BaseProvider with health tracking (13 tests) | Done | `9724b1e` |
+| OpenAI-compatible adapter | TODO | — |
+| Provider registry | TODO | — |
+| Health monitor | TODO | — |
+| Fallback chain engine | TODO | — |
+| Token tracker + cost governor | TODO | — |
+| Gateway facade + IPC integration | TODO | — |
+| E2E verification + PR | TODO | — |
 
 ---
 
@@ -126,26 +136,7 @@ Branch: `feat/desktop-electron-shell` (active, pushed to remote)
 
 ### Phase 1: Backend Infrastructure (no GUI)
 
-#### Priority 1: Finish Electron Shell (branch: `feat/desktop-electron-shell`)
-
-Remaining tasks on this branch:
-
-**Task 7: Create minimal renderer placeholder**
-- Create `apps/desktop/src/renderer/index.html` (basic HTML, CSP headers, `<div id="root">`)
-- Create `apps/desktop/src/renderer/index.ts` (verify IPC bridge, display kernel connection status as text only)
-- No React, no styling — just enough HTML for Electron to load a page
-- Commit: `feat(desktop): add minimal renderer placeholder with IPC verification`
-
-**Task 8: End-to-end verification**
-- Run all tests: `pnpm test` — all must pass
-- Run typecheck: `pnpm typecheck` — no errors
-- Run lint: `pnpm lint` — no errors
-- Launch app: `cd apps/desktop && pnpm start` — window opens, kernel connects
-- Verify IPC: window shows "Code One — Kernel connected"
-- Verify shutdown: close window, kernel shuts down cleanly
-- Final commit, push, create PR to main
-
-#### Priority 2: AI Gateway — Milestone 3 Backend
+#### Priority 2: AI Gateway — Milestone 3 Backend (IN PROGRESS)
 
 Branch: `feat/ai-gateway`
 Package: `packages/ai-gateway`
@@ -153,9 +144,8 @@ Types: `packages/shared-types/src/providers.ts` (already defined)
 
 | Task | Description | Tests Needed |
 |------|-------------|-------------|
-| Provider interface | Abstract `IProvider` with `chat()`, `complete()`, `health()` | Interface compliance |
+| Provider interface | DONE — `IProvider` + `BaseProvider` with health tracking | 13 tests passing |
 | OpenAI-compatible adapter | Handles any OpenAI-compatible endpoint | Streaming, error handling |
-| Ollama adapter | Local model communication | Connection, model listing |
 | Provider registry | Register/lookup providers by ID | CRUD, lookup |
 | Fallback chain engine | Ordered provider list, auto-failover on rate limit/timeout/error | Failover triggers, chain traversal |
 | Health monitor | Per-provider latency, error rate, uptime tracking | Health state transitions |
@@ -329,7 +319,7 @@ Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/term
 | `shared-types` | — | M0-M1 | Done | TypeScript type contracts |
 | `kernel` | 0 | M1 | Done | Command/event/module/permission/settings/layout/logging |
 | `test-harness` | — | M0 | Done | Shared test utilities |
-| `ai-gateway` | 2 | M3 | Stub | Provider abstraction, streaming, fallback, cost |
+| `ai-gateway` | 2 | M3 | In progress | Provider abstraction, streaming, fallback, cost |
 | `context-engine` | 3 | M4 | Stub | Repo map, RAG, memory, ranking |
 | `agent-core` | 4 | M5 | Stub | Event stream, agent loop, modes, approval |
 | `task-graph` | 4 | M5 | Stub | LangGraph-style orchestration, checkpoints |
@@ -347,7 +337,7 @@ Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/term
 Apps:
 | App | Status | Purpose |
 |-----|--------|---------|
-| `desktop` | In progress (M2 infra) | Electron main process, IPC, shell |
+| `desktop` | Done (M2 infra) | Electron main process, IPC, shell |
 | `agent-runner` | Stub | Standalone agent process (M5) |
 
 ---
@@ -368,8 +358,8 @@ pnpm typecheck                    # Check types
 Check this document's section 4 ("What Is DONE") and section 5 ("What REMAINS").
 Cross-reference with git branches:
 
-- If `feat/desktop-electron-shell` exists and isn't merged → finish it first
-- If it's merged → move to next priority in section 5
+- If `feat/ai-gateway` exists and isn't merged → finish it first
+- Otherwise check section 5 for the next priority
 
 ### Step 3: For each milestone
 
@@ -452,24 +442,16 @@ feat/gui-layer
 
 ---
 
-## 10. Pending PRs To Merge
+## 10. Merged PRs
 
-### PR #1: `feat/e2e-gap-fixes` → main
+| PR | Branch | Merged | Contents |
+|----|--------|--------|----------|
+| #1 | `feat/e2e-gap-fixes` | 2026-04-14 | ADRs 0003-0005, runtime specs, GLOSSARY, INDEX, CONTRIBUTING, providers/modes/graph types, CI format:check |
+| #2 | `feat/desktop-electron-shell` | 2026-04-14 | Electron Forge + Vite, IPC bridge, preload API, main process, 19 tests, Master Action Plan |
 
-Contains critical docs and type additions not yet on main:
-- `docs/GLOSSARY.md` — Canonical term definitions
-- `docs/INDEX.md` — Documentation reading order
-- `docs/CONTRIBUTING.md` — Setup, branch conventions, PR process
-- `docs/adr/0003-electron-platform.md` — Why Electron
-- `docs/adr/0004-sqlite-persistence.md` — SQLite schema, WAL, retention
-- `docs/adr/0005-testing-strategy.md` — Three-layer pyramid, eval harness
-- `docs/architecture/runtime-specs.md` — Context compression, subagent isolation, SQLite DDL, hook conflicts, cost governor
-- `packages/shared-types/src/providers.ts` — Multi-provider abstraction types
-- `packages/shared-types/src/modes.ts` — Mode and tool system contracts
-- `packages/shared-types/src/graph.ts` — Task graph, checkpoint, repo map, memory types
-- `.github/workflows/ci.yml` — Added format:check and security audit steps
+### Open: `feat/ai-gateway` (active)
 
-**Action:** Merge this PR to main before starting any new milestone branch.
+AI gateway in progress. BaseProvider + IProvider done (13 tests). Remaining: OpenAI adapter, registry, health, fallback, cost, IPC.
 
 ---
 
@@ -496,5 +478,5 @@ If starting a new session or recovering from a crash:
 | Date | Change | By |
 |------|--------|----|
 | 2026-04-14 | Initial master plan created | Claude + User |
-| | M0, M1 complete. Electron shell 75%. | |
-| | Infrastructure-first build order established. | |
+| 2026-04-14 | M2 infra complete (PR #2 merged). PR #1 merged. AI gateway started. | Claude + User |
+| | M0, M1, M2-infra done. AI gateway Task 1 done (13 tests). | |
