@@ -59,8 +59,12 @@ The assistant becomes useful without being autonomous.
 - Multi-file patch proposals with diff preview
 - Apply/reject individual changes
 - Prompt presets (coding style, language, task type)
-- Endpoint abstraction: Ollama, llama.cpp, LM Studio, OpenAI-compatible APIs, MiniMax, other provider backends
-- API key management per provider
+- Endpoint abstraction with fallback chains per model role
+- Supported providers: Anthropic (Claude), OpenAI, MiniMax, Google (Gemini), Ollama, LM Studio, llama.cpp, any OpenAI-compatible endpoint
+- Automatic failover: rate limit / outage / timeout triggers next provider in chain
+- Local models as final offline fallback for all roles
+- API key management per provider (encrypted storage)
+- Per-provider token tracking for cost governance
 
 ### Tier 3 — Intelligence Layer
 

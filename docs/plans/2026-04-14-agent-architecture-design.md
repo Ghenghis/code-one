@@ -100,6 +100,87 @@ The core execution loop, universal across all modes.
 - **Primary model**: Main conversation, planning, complex reasoning
 - **Editor model**: Generates edit blocks from architect plans (cheaper/faster)
 - **Utility model**: Commit messages, summaries, embeddings (cheapest)
+- **Vision/Browser model**: Screenshot analysis, UI validation
+
+Each model role can be assigned to any provider. Roles are logical, providers are physical.
+
+### Provider Fallback Chain
+
+Every model role has an ordered fallback chain. If the primary provider fails (rate limit, outage, timeout), the system automatically tries the next provider in the chain without interrupting the agent loop.
+
+```typescript
+interface ProviderConfig {
+  role: "primary" | "editor" | "utility" | "vision";
+  chain: ProviderEntry[];       // ordered fallback list
+  maxRetries: number;           // per-provider retry count
+  timeoutMs: number;            // per-request timeout
+  healthCheckIntervalMs: number; // periodic health probe
+}
+
+interface ProviderEntry {
+  id: string;                   // e.g. "anthropic-opus", "minimax-01"
+  type: "anthropic" | "openai" | "minimax" | "ollama" | "lmstudio" | "llamacpp" | "custom";
+  endpoint: string;             // base URL
+  apiKey?: string;              // stored encrypted in settings
+  model: string;                // model ID at this provider
+  priority: number;             // lower = preferred
+  maxTokens?: number;
+  costPerMillionTokens?: number; // for cost governor
+}
+```
+
+Example fallback chain for the primary role:
+
+```json
+{
+  "role": "primary",
+  "chain": [
+    { "id": "anthropic-opus", "type": "anthropic", "model": "claude-opus-4-6", "priority": 1 },
+    { "id": "minimax-01", "type": "openai", "endpoint": "https://api.minimax.chat/v1", "model": "MiniMax-M1", "priority": 2 },
+    { "id": "openai-gpt4", "type": "openai", "model": "gpt-4o", "priority": 3 },
+    { "id": "local-llama", "type": "ollama", "endpoint": "http://localhost:11434", "model": "DMax-Coder-16B:Q5_K_M", "priority": 4 }
+  ]
+}
+```
+
+Fallback behavior:
+- On 429 (rate limit): wait and retry, then fall to next provider
+- On 5xx (server error): immediately fall to next provider
+- On timeout: fall to next provider
+- On auth failure (401/403): skip provider, mark unhealthy, alert user
+- Health checks run periodically to re-enable recovered providers
+- All provider switches are logged as events for auditability
+- User can pin a specific provider to override fallback
+
+### Seamless Provider Switching
+
+The AI Gateway abstracts all providers behind a single interface:
+
+```typescript
+interface LLMProvider {
+  id: string;
+  type: string;
+  chat(request: ChatRequest): AsyncIterable<ChatChunk>;
+  complete(request: CompletionRequest): AsyncIterable<string>;
+  healthCheck(): Promise<boolean>;
+}
+```
+
+All providers implement this interface. The gateway handles:
+- Streaming normalization (all providers emit the same chunk format)
+- Auth header injection (Bearer token, API key, custom headers)
+- Request/response mapping (Anthropic messages API vs OpenAI chat API vs custom)
+- Token counting per provider (for cost governor)
+
+Supported providers:
+- **Anthropic** (Claude Opus, Sonnet, Haiku) — native messages API
+- **OpenAI / OpenAI-compatible** (GPT-4o, o3, any compatible endpoint) — chat completions API
+- **MiniMax** (MiniMax-M1, Text-01) — OpenAI-compatible
+- **Google** (Gemini) — OpenAI-compatible or native
+- **Ollama** — local models, OpenAI-compatible API
+- **LM Studio** — local models, OpenAI-compatible API
+- **llama.cpp server** — local models, OpenAI-compatible API
+- **Custom** — any endpoint implementing OpenAI chat completions format
 
 Each mode can specify which model role to use.
 
