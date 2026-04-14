@@ -25,17 +25,17 @@ Desktop-first modular AI development platform.
 
 ## Tier Stack
 
-| Tier | Name | Package(s) |
-|---|---|---|
-| 0 | Platform Kernel | kernel, shared-types |
-| 1 | Core IDE | editor, workspace, terminal, preview, ui |
-| 2 | AI Coding | ai-gateway |
-| 3 | Intelligence | context-engine |
-| 4 | Agent System | agent-core, task-graph |
-| 4.5 | Automation Fabric | (within agent-core + ai-gateway) |
-| 5 | Remote/DevOps | remote, git-tools |
-| 6 | Ecosystem | skills, mcp |
-| 7 | Model Lab | model-lab |
+| Tier | Name              | Package(s)                               |
+| ---- | ----------------- | ---------------------------------------- |
+| 0    | Platform Kernel   | kernel, shared-types                     |
+| 1    | Core IDE          | editor, workspace, terminal, preview, ui |
+| 2    | AI Coding         | ai-gateway                               |
+| 3    | Intelligence      | context-engine                           |
+| 4    | Agent System      | agent-core, task-graph                   |
+| 4.5  | Automation Fabric | (within agent-core + ai-gateway)         |
+| 5    | Remote/DevOps     | remote, git-tools                        |
+| 6    | Ecosystem         | skills, mcp                              |
+| 7    | Model Lab         | model-lab                                |
 
 ## Process Architecture
 

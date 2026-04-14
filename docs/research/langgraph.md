@@ -18,9 +18,11 @@ Graph-based state machines with checkpointing enable complex multi-step agent wo
 ## How we adapt it
 
 ### Task Graph (Tier 4)
+
 Implement graph-based orchestration for complex multi-step tasks:
 
 **Nodes:**
+
 - PlannerNode: reads request + context, outputs task plan
 - ExecutorNode: runs agent loop per task step
 - ReviewerNode: validates output against plan
@@ -28,6 +30,7 @@ Implement graph-based orchestration for complex multi-step tasks:
 - ApprovalGateNode: pauses for human decision
 
 **State Management:**
+
 - Define state as typed objects with reducer functions
 - Messages accumulate via append reducer
 - File changes accumulate via patch reducer
@@ -35,17 +38,20 @@ Implement graph-based orchestration for complex multi-step tasks:
 - Each node returns partial state updates, merged by reducers
 
 **Checkpointing:**
+
 - Serialize full state after every node execution
 - Store in SQLite with session_id + step_number
 - `get_state_history()` for inspection and replay
 
 **Human-in-the-Loop:**
+
 - `interrupt()` on specific nodes pauses execution
 - State is checkpointed, control returns to UI
 - User inspects, optionally modifies, approves/rejects
 - Resume continues from checkpoint
 
 ### ReAct Loop
+
 Simple chat flows use the basic agent loop (Layer 2). Graph mode activates only for multi-step tasks — preventing complexity leak.
 
 ## What we will not copy

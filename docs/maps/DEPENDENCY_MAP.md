@@ -49,15 +49,15 @@ These would create circular dependencies or violate tier boundaries:
 
 ## External Dependencies (Planned)
 
-| Package | External Dep | Purpose |
-|---|---|---|
-| desktop | electron | Desktop shell |
-| editor | monaco-editor | Code editor |
-| terminal | xterm.js, node-pty | Terminal emulation |
-| preview | electron BrowserView | Web preview |
-| ui | react, tailwindcss | UI framework |
-| ai-gateway | (none — raw fetch) | HTTP to LLM providers |
-| context-engine | tree-sitter | Code parsing for repo map |
-| agent-core | better-sqlite3 | Event/session persistence |
-| remote | ssh2 | SSH connections |
-| mcp | @modelcontextprotocol/sdk | MCP client |
+| Package        | External Dep              | Purpose                   |
+| -------------- | ------------------------- | ------------------------- |
+| desktop        | electron                  | Desktop shell             |
+| editor         | monaco-editor             | Code editor               |
+| terminal       | xterm.js, node-pty        | Terminal emulation        |
+| preview        | electron BrowserView      | Web preview               |
+| ui             | react, tailwindcss        | UI framework              |
+| ai-gateway     | (none — raw fetch)        | HTTP to LLM providers     |
+| context-engine | tree-sitter               | Code parsing for repo map |
+| agent-core     | better-sqlite3            | Event/session persistence |
+| remote         | ssh2                      | SSH connections           |
+| mcp            | @modelcontextprotocol/sdk | MCP client                |

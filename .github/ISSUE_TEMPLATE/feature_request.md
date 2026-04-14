@@ -27,5 +27,5 @@ labels: enhancement
 
 ## Acceptance criteria
 
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]

@@ -10,13 +10,7 @@ import type {
 } from "@code-one/shared-types";
 
 /** Ordered trust levels from least to most restrictive */
-const TRUST_ORDER: TrustLevel[] = [
-  "trusted",
-  "guarded",
-  "restricted",
-  "isolated",
-  "remote",
-];
+const TRUST_ORDER: TrustLevel[] = ["trusted", "guarded", "restricted", "isolated", "remote"];
 
 /**
  * Capability-based permission engine with three-layer evaluation:
@@ -57,9 +51,7 @@ export class PermissionEngine implements IPermissionEngine {
     // Layer 1: Check explicit policy
     const policy = this.policies.get(request.moduleId);
     if (policy) {
-      const grant = policy.grants.find(
-        (g) => g.capabilityId === request.capabilityId,
-      );
+      const grant = policy.grants.find((g) => g.capabilityId === request.capabilityId);
       if (grant) {
         // Check conditions if any
         if (grant.conditions && grant.conditions.length > 0) {

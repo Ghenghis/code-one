@@ -67,10 +67,7 @@ export class SettingsManager implements ISettingsManager {
     }
   }
 
-  onChange(
-    handler: SettingsChangeHandler,
-    key?: string,
-  ): { dispose(): void } {
+  onChange(handler: SettingsChangeHandler, key?: string): { dispose(): void } {
     const sub: Subscription = { handler, key };
     this.subscriptions.add(sub);
     return {

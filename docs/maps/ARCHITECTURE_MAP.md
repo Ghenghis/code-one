@@ -18,24 +18,24 @@ Tier 0: Platform Kernel     (foundation for everything)
 
 ## Module Responsibilities
 
-| Module | Tier | Responsibility |
-|---|---|---|
-| kernel | 0 | Command bus, module registry, permissions, settings, layout |
-| shared-types | 0 | Type contracts shared across all packages |
-| editor | 1 | Monaco editor, tabs, syntax, minimap |
-| workspace | 1 | File tree, project CRUD, sessions |
-| terminal | 1 | xterm.js, shell integration |
-| preview | 1 | Webview for web, external launcher for desktop/CLI |
-| ui | 1 | Shared components, theme system |
-| ai-gateway | 2 | Provider adapters, streaming, model routing |
-| context-engine | 3 | Repo map, RAG, memory, ranking, compression |
-| agent-core | 4 | Event bus, agent loop, modes, tool registry |
-| task-graph | 4 | Graph orchestration, checkpoints, approval gates |
-| git-tools | 5 | Git operations |
-| remote | 5 | SSH, SFTP, tunnels, deploy |
-| skills | 6 | Skill runtime, authoring, manifests |
-| mcp | 6 | MCP client, external tool servers |
-| model-lab | 7 | Model catalog, benchmarks, fine-tuning |
+| Module         | Tier | Responsibility                                              |
+| -------------- | ---- | ----------------------------------------------------------- |
+| kernel         | 0    | Command bus, module registry, permissions, settings, layout |
+| shared-types   | 0    | Type contracts shared across all packages                   |
+| editor         | 1    | Monaco editor, tabs, syntax, minimap                        |
+| workspace      | 1    | File tree, project CRUD, sessions                           |
+| terminal       | 1    | xterm.js, shell integration                                 |
+| preview        | 1    | Webview for web, external launcher for desktop/CLI          |
+| ui             | 1    | Shared components, theme system                             |
+| ai-gateway     | 2    | Provider adapters, streaming, model routing                 |
+| context-engine | 3    | Repo map, RAG, memory, ranking, compression                 |
+| agent-core     | 4    | Event bus, agent loop, modes, tool registry                 |
+| task-graph     | 4    | Graph orchestration, checkpoints, approval gates            |
+| git-tools      | 5    | Git operations                                              |
+| remote         | 5    | SSH, SFTP, tunnels, deploy                                  |
+| skills         | 6    | Skill runtime, authoring, manifests                         |
+| mcp            | 6    | MCP client, external tool servers                           |
+| model-lab      | 7    | Model catalog, benchmarks, fine-tuning                      |
 
 ## Data Flow
 

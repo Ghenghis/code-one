@@ -20,12 +20,15 @@ Multi-layered permission models with programmable hooks provide the best balance
 ## How we adapt it
 
 ### Permission Model (Agent Core, Tier 4)
+
 Three-layer system:
+
 1. **Mode permissions**: Which tools exist for this mode
 2. **Auto-approve rules**: Per-tool in settings (user + project scope)
 3. **Hooks**: Programmable PreToolUse/PostToolUse/PreEdit/PreCommand handlers that return allow/deny/ask
 
 ### Subagent Architecture
+
 - Parent spawns children via `spawn_agent` tool
 - Each child has: isolated context, scoped tools, own mode, own system prompt
 - Results reported back via SubagentResultEvent
@@ -33,14 +36,17 @@ Three-layer system:
 - Multiple subagents can run in parallel
 
 ### MCP Integration (Tier 6)
+
 - MCP client connects to external tool servers
 - Tools registered at runtime with JSON schema
 - Subject to same permission model as built-in tools
 
 ### Project Instructions
+
 `.hybridrules` file (our equivalent of CLAUDE.md) loads as persistent context.
 
 ### Session Persistence
+
 - Conversations persisted as structured events (not JSONL — we use our EventStream)
 - Sessions resumable by ID
 

@@ -3,12 +3,7 @@ import { ModuleRegistry } from "./module-registry.js";
 import { EventBus } from "./event-bus.js";
 import type { ModuleManifest } from "@code-one/shared-types";
 
-function manifest(
-  id: string,
-  tier: number,
-  deps?: string[],
-  provides?: string[],
-): ModuleManifest {
+function manifest(id: string, tier: number, deps?: string[], provides?: string[]): ModuleManifest {
   return {
     id,
     name: id,
@@ -42,13 +37,19 @@ describe("ModuleRegistry", () => {
     const registry = new ModuleRegistry();
 
     registry.register(manifest("base", 0), {
-      activate: () => { order.push("base"); },
+      activate: () => {
+        order.push("base");
+      },
     });
     registry.register(manifest("mid", 1, ["base"]), {
-      activate: () => { order.push("mid"); },
+      activate: () => {
+        order.push("mid");
+      },
     });
     registry.register(manifest("top", 2, ["mid"]), {
-      activate: () => { order.push("top"); },
+      activate: () => {
+        order.push("top");
+      },
     });
 
     await registry.activateAll();
@@ -64,10 +65,14 @@ describe("ModuleRegistry", () => {
     const registry = new ModuleRegistry();
 
     registry.register(manifest("base", 0), {
-      deactivate: () => { order.push("base"); },
+      deactivate: () => {
+        order.push("base");
+      },
     });
     registry.register(manifest("top", 1, ["base"]), {
-      deactivate: () => { order.push("top"); },
+      deactivate: () => {
+        order.push("top");
+      },
     });
 
     await registry.activateAll();
@@ -80,9 +85,7 @@ describe("ModuleRegistry", () => {
     const registry = new ModuleRegistry();
     registry.register(manifest("high", 2), {});
 
-    expect(() =>
-      registry.register(manifest("low", 1, ["high"]), {}),
-    ).toThrow("Tier violation");
+    expect(() => registry.register(manifest("low", 1, ["high"]), {})).toThrow("Tier violation");
   });
 
   it("detects circular dependencies", async () => {
@@ -92,18 +95,14 @@ describe("ModuleRegistry", () => {
     registry.register(manifest("a", 0, ["b"]), {});
     registry.register(manifest("b", 0, ["a"]), {});
 
-    await expect(registry.activateAll()).rejects.toThrow(
-      "Circular dependency",
-    );
+    await expect(registry.activateAll()).rejects.toThrow("Circular dependency");
   });
 
   it("fails activation if dependency is missing", async () => {
     const registry = new ModuleRegistry();
     registry.register(manifest("orphan", 1, ["missing"]), {});
 
-    await expect(registry.activateAll()).rejects.toThrow(
-      "Missing dependency",
-    );
+    await expect(registry.activateAll()).rejects.toThrow("Missing dependency");
   });
 
   it("tracks capabilities from active modules", async () => {

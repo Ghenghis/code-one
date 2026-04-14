@@ -17,6 +17,7 @@ Tree-sitter + PageRank repo maps give LLMs effective codebase awareness without 
 ## How we adapt it
 
 ### Repo Map (Context Engine, Tier 3)
+
 - Tree-sitter parses all project files, extracts symbol tags via language-specific queries
 - Build dependency graph of definitions and references across files
 - PageRank ranks files/symbols by relevance to current context (seeded by open files)
@@ -24,17 +25,20 @@ Tree-sitter + PageRank repo maps give LLMs effective codebase awareness without 
 - Dynamically size to fit within token budget
 
 ### Multi-Model Strategy (AI Gateway, Tier 2)
+
 - **Primary model**: Main conversation, planning, complex reasoning
 - **Editor model**: Generates edit blocks from architect plans (cheaper/faster)
 - **Utility model**: Commit messages, summaries, embeddings (cheapest)
 
 ### Edit Format System (Agent Core, Tier 4)
+
 - SearchReplace: SEARCH/REPLACE blocks with fuzzy matching (default)
 - WholeFile: Full file replacement for new files
 - UnifiedDiff: Standard diff format
 - Modular engine — strategies coexist, selected by model capability
 
 ### Git Integration
+
 - Auto-generated commit suggestions (human-reviewable)
 - Dirty file detection before editing
 - Scoped commit messages with traceability

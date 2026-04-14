@@ -6,7 +6,5 @@
     "types": ["node", "vitest/globals"]
   },
   "include": ["src"],
-  "references": [
-    { "path": "../shared-types" }
-  ]
+  "references": [{ "path": "../shared-types" }]
 }

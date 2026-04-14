@@ -180,11 +180,11 @@ export type MemoryScope = "turn" | "session" | "project" | "user";
 // ---------------------------------------------------------------------------
 
 export type TrustLevel =
-  | "trusted"    // read-only ops
-  | "guarded"    // local mutations
+  | "trusted" // read-only ops
+  | "guarded" // local mutations
   | "restricted" // system access
-  | "isolated"   // untrusted code execution
-  | "remote";    // external systems — always requires approval
+  | "isolated" // untrusted code execution
+  | "remote"; // external systems — always requires approval
 
 // ---------------------------------------------------------------------------
 // Event union

@@ -10,14 +10,14 @@ The agent system is a 5-layer architecture that combines the best proven pattern
 
 ## Source Pattern Map
 
-| Project | Core Pattern | What We Adopt |
-|---|---|---|
-| OpenHands | EventStream + Controller loop | Append-only event log as single source of truth. Actions/Observations as typed events with IDs, timestamps, source, causation links |
-| Aider | Multi-model + polymorphic edits | Architect/Editor two-model pipeline, Tree-sitter + PageRank repo map, SEARCH/REPLACE edit blocks |
-| LangGraph | Graph-based state machine | Checkpointing + reducer-based state, conditional routing, interrupt() for human-in-the-loop |
-| KiloCode | Mode-based tool permissions | Custom modes as JSON config with tool allowlists and custom system prompts |
-| Claude Code | Hierarchical subagents + hooks | Multi-layered permissions (mode, per-tool, hooks), subagent spawning, MCP extensibility |
-| OpenCode | Clean tool registry + sessions | SQLite session persistence, project-level instructions file, context compaction |
+| Project     | Core Pattern                    | What We Adopt                                                                                                                       |
+| ----------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| OpenHands   | EventStream + Controller loop   | Append-only event log as single source of truth. Actions/Observations as typed events with IDs, timestamps, source, causation links |
+| Aider       | Multi-model + polymorphic edits | Architect/Editor two-model pipeline, Tree-sitter + PageRank repo map, SEARCH/REPLACE edit blocks                                    |
+| LangGraph   | Graph-based state machine       | Checkpointing + reducer-based state, conditional routing, interrupt() for human-in-the-loop                                         |
+| KiloCode    | Mode-based tool permissions     | Custom modes as JSON config with tool allowlists and custom system prompts                                                          |
+| Claude Code | Hierarchical subagents + hooks  | Multi-layered permissions (mode, per-tool, hooks), subagent spawning, MCP extensibility                                             |
+| OpenCode    | Clean tool registry + sessions  | SQLite session persistence, project-level instructions file, context compaction                                                     |
 
 ---
 
@@ -31,27 +31,27 @@ Everything is an event on an append-only stream.
 interface AgentEvent {
   id: string;
   timestamp: number;
-  source: 'user' | 'agent' | 'system' | 'subagent';
-  parentId?: string;        // causation link
+  source: "user" | "agent" | "system" | "subagent";
+  parentId?: string; // causation link
   sessionId: string;
   type: string;
 }
 
 // Core events
-UserMessageEvent          // user types in chat
-AssistantMessageEvent     // LLM response text
-ToolCallEvent             // LLM requests a tool
-ToolResultEvent           // tool execution result
-PlanEvent                 // agent creates a plan
-EditProposalEvent         // multi-file diff proposal
-ApprovalRequestEvent      // agent asks for permission
-ApprovalResponseEvent     // user grants/denies
-CheckpointEvent           // state snapshot
-SubagentSpawnEvent        // parent spawns child
-SubagentResultEvent       // child reports back
-ErrorEvent                // something failed
-ModeChangeEvent           // agent switches mode
-MemoryWriteEvent          // persistent memory update
+UserMessageEvent; // user types in chat
+AssistantMessageEvent; // LLM response text
+ToolCallEvent; // LLM requests a tool
+ToolResultEvent; // tool execution result
+PlanEvent; // agent creates a plan
+EditProposalEvent; // multi-file diff proposal
+ApprovalRequestEvent; // agent asks for permission
+ApprovalResponseEvent; // user grants/denies
+CheckpointEvent; // state snapshot
+SubagentSpawnEvent; // parent spawns child
+SubagentResultEvent; // child reports back
+ErrorEvent; // something failed
+ModeChangeEvent; // agent switches mode
+MemoryWriteEvent; // persistent memory update
 ```
 
 ### Properties
@@ -111,19 +111,19 @@ Every model role has an ordered fallback chain. If the primary provider fails (r
 ```typescript
 interface ProviderConfig {
   role: "primary" | "editor" | "utility" | "vision";
-  chain: ProviderEntry[];       // ordered fallback list
-  maxRetries: number;           // per-provider retry count
-  timeoutMs: number;            // per-request timeout
+  chain: ProviderEntry[]; // ordered fallback list
+  maxRetries: number; // per-provider retry count
+  timeoutMs: number; // per-request timeout
   healthCheckIntervalMs: number; // periodic health probe
 }
 
 interface ProviderEntry {
-  id: string;                   // e.g. "anthropic-opus", "minimax-01"
+  id: string; // e.g. "anthropic-opus", "minimax-01"
   type: "anthropic" | "openai" | "minimax" | "ollama" | "lmstudio" | "llamacpp" | "custom";
-  endpoint: string;             // base URL
-  apiKey?: string;              // stored encrypted in settings
-  model: string;                // model ID at this provider
-  priority: number;             // lower = preferred
+  endpoint: string; // base URL
+  apiKey?: string; // stored encrypted in settings
+  model: string; // model ID at this provider
+  priority: number; // lower = preferred
   maxTokens?: number;
   costPerMillionTokens?: number; // for cost governor
 }
@@ -136,14 +136,27 @@ Example fallback chain for the primary role:
   "role": "primary",
   "chain": [
     { "id": "anthropic-opus", "type": "anthropic", "model": "claude-opus-4-6", "priority": 1 },
-    { "id": "minimax-01", "type": "openai", "endpoint": "https://api.minimax.chat/v1", "model": "MiniMax-M1", "priority": 2 },
+    {
+      "id": "minimax-01",
+      "type": "openai",
+      "endpoint": "https://api.minimax.chat/v1",
+      "model": "MiniMax-M1",
+      "priority": 2
+    },
     { "id": "openai-gpt4", "type": "openai", "model": "gpt-4o", "priority": 3 },
-    { "id": "local-llama", "type": "ollama", "endpoint": "http://localhost:11434", "model": "DMax-Coder-16B:Q5_K_M", "priority": 4 }
+    {
+      "id": "local-llama",
+      "type": "ollama",
+      "endpoint": "http://localhost:11434",
+      "model": "DMax-Coder-16B:Q5_K_M",
+      "priority": 4
+    }
   ]
 }
 ```
 
 Fallback behavior:
+
 - On 429 (rate limit): wait and retry, then fall to next provider
 - On 5xx (server error): immediately fall to next provider
 - On timeout: fall to next provider
@@ -167,12 +180,14 @@ interface LLMProvider {
 ```
 
 All providers implement this interface. The gateway handles:
+
 - Streaming normalization (all providers emit the same chunk format)
 - Auth header injection (Bearer token, API key, custom headers)
 - Request/response mapping (Anthropic messages API vs OpenAI chat API vs custom)
 - Token counting per provider (for cost governor)
 
 Supported providers:
+
 - **Anthropic** (Claude Opus, Sonnet, Haiku) — native messages API
 - **OpenAI / OpenAI-compatible** (GPT-4o, o3, any compatible endpoint) — chat completions API
 - **MiniMax** (MiniMax-M1, Text-01) — OpenAI-compatible
@@ -214,7 +229,16 @@ Modes define what the agent can do and how it behaves.
   {
     "slug": "code",
     "name": "Code",
-    "tools": ["read_file", "write_file", "edit_file", "search_content", "search_files", "list_files", "terminal", "browser"],
+    "tools": [
+      "read_file",
+      "write_file",
+      "edit_file",
+      "search_content",
+      "search_files",
+      "list_files",
+      "terminal",
+      "browser"
+    ],
     "autoApprove": ["read_file", "search_content", "search_files", "list_files"],
     "requireApproval": ["write_file", "edit_file", "terminal"],
     "systemPrompt": "You are a coding assistant with full read/write access.",
@@ -232,7 +256,17 @@ Modes define what the agent can do and how it behaves.
   {
     "slug": "agent",
     "name": "Agent",
-    "tools": ["read_file", "write_file", "edit_file", "search_content", "search_files", "list_files", "terminal", "browser", "spawn_agent"],
+    "tools": [
+      "read_file",
+      "write_file",
+      "edit_file",
+      "search_content",
+      "search_files",
+      "list_files",
+      "terminal",
+      "browser",
+      "spawn_agent"
+    ],
     "autoApprove": ["read_file", "search_content", "search_files", "list_files"],
     "requireApproval": ["write_file", "edit_file", "terminal", "spawn_agent"],
     "systemPrompt": "You are an autonomous coding agent. Plan, execute, and verify.",
@@ -274,6 +308,7 @@ For complex multi-step work, the agent enters graph execution mode.
 ### State Management
 
 Reducer-based state updates (from LangGraph):
+
 - Messages: accumulate via append
 - File changes: accumulate via patch
 - Plan status: update via replace
@@ -334,19 +369,19 @@ Reducer-based state updates (from LangGraph):
 
 ### Built-in Tools
 
-| Tool | Trust Level | Description |
-|---|---|---|
-| read_file | Trusted | Read file contents |
-| write_file | Guarded | Write entire file |
-| edit_file | Guarded | SEARCH/REPLACE edit blocks |
-| list_files | Trusted | Directory listing |
-| search_content | Trusted | Ripgrep-style content search |
-| search_files | Trusted | Glob pattern file search |
-| terminal | Restricted | Execute shell commands |
-| browser | Restricted | Embedded browser actions |
-| ask_user | Trusted | Request human input |
-| spawn_agent | Restricted | Create subagent |
-| attempt_completion | Trusted | Signal task is done |
+| Tool               | Trust Level | Description                  |
+| ------------------ | ----------- | ---------------------------- |
+| read_file          | Trusted     | Read file contents           |
+| write_file         | Guarded     | Write entire file            |
+| edit_file          | Guarded     | SEARCH/REPLACE edit blocks   |
+| list_files         | Trusted     | Directory listing            |
+| search_content     | Trusted     | Ripgrep-style content search |
+| search_files       | Trusted     | Glob pattern file search     |
+| terminal           | Restricted  | Execute shell commands       |
+| browser            | Restricted  | Embedded browser actions     |
+| ask_user           | Trusted     | Request human input          |
+| spawn_agent        | Restricted  | Create subagent              |
+| attempt_completion | Trusted     | Signal task is done          |
 
 ### MCP Tools (Dynamic)
 
@@ -373,6 +408,7 @@ Mode defines which tools are available. Tools not in the mode's list cannot be c
 ### Layer 2: Auto-Approve Rules
 
 Per-tool configuration:
+
 - `autoApprove`: execute without asking
 - `requireApproval`: always ask user
 - Configurable per-project and per-user in settings
@@ -381,8 +417,8 @@ Per-tool configuration:
 
 ```typescript
 interface ToolHook {
-  event: 'PreToolUse' | 'PostToolUse' | 'PreEdit' | 'PreCommand';
-  handler: (context: HookContext) => 'allow' | 'deny' | 'ask';
+  event: "PreToolUse" | "PostToolUse" | "PreEdit" | "PreCommand";
+  handler: (context: HookContext) => "allow" | "deny" | "ask";
 }
 ```
 
@@ -395,13 +431,13 @@ interface ToolHook {
 
 ## Sandbox / Trust Levels
 
-| Trust Level | Scope | Examples |
-|---|---|---|
-| Trusted | Read-only ops | read_file, search, list_files |
-| Guarded | Local mutations | write_file, edit_file |
-| Restricted | System access | terminal, process spawn |
-| Isolated | Untrusted code | Agent-generated code in Docker/WASM |
-| Remote | External systems | SSH, deploy, API calls — always require approval |
+| Trust Level | Scope            | Examples                                         |
+| ----------- | ---------------- | ------------------------------------------------ |
+| Trusted     | Read-only ops    | read_file, search, list_files                    |
+| Guarded     | Local mutations  | write_file, edit_file                            |
+| Restricted  | System access    | terminal, process spawn                          |
+| Isolated    | Untrusted code   | Agent-generated code in Docker/WASM              |
+| Remote      | External systems | SSH, deploy, API calls — always require approval |
 
 ---
 

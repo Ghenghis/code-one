@@ -11,6 +11,7 @@ Accepted
 ## Context
 
 The Platform Kernel (Tier 0) is the foundation every other module depends on. It must provide:
+
 - Cross-module communication (events and commands)
 - Module lifecycle management with dependency resolution
 - Capability-based access control

@@ -1,9 +1,4 @@
-import type {
-  BaseEvent,
-  Disposable,
-  EventHandler,
-  IEventBus,
-} from "@code-one/shared-types";
+import type { BaseEvent, Disposable, EventHandler, IEventBus } from "@code-one/shared-types";
 
 /**
  * In-memory event bus implementing the append-only EventStream pattern.

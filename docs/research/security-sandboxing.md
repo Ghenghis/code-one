@@ -17,29 +17,32 @@ Agent-generated code must execute in isolation. The host machine should never be
 
 ### Trust Levels (from our design)
 
-| Level | Scope | Isolation |
-|---|---|---|
-| Trusted | Read-only ops | None needed |
-| Guarded | Local file mutations | Working directory scoped |
-| Restricted | Terminal commands | Command validation + allowlist |
-| Isolated | Agent-generated code execution | Process-level or container-level |
-| Remote | SSH, deploy, API calls | Always require approval + audit |
+| Level      | Scope                          | Isolation                        |
+| ---------- | ------------------------------ | -------------------------------- |
+| Trusted    | Read-only ops                  | None needed                      |
+| Guarded    | Local file mutations           | Working directory scoped         |
+| Restricted | Terminal commands              | Command validation + allowlist   |
+| Isolated   | Agent-generated code execution | Process-level or container-level |
+| Remote     | SSH, deploy, API calls         | Always require approval + audit  |
 
 ### Implementation Phases
 
 **Phase 1 (Milestone 5):** Process-level isolation
+
 - Agent commands run in a child process with restricted env
 - Working directory locked to project root
 - PATH restricted to safe executables
 - Network access logged
 
 **Phase 2 (Milestone 6+):** Container isolation (optional)
+
 - Docker-based sandbox for untrusted code execution
 - Disposable containers per agent task
 - Filesystem mounted read-only except for workspace
 - Network policies enforced
 
 **Phase 3 (Tier 7):** WASM sandbox (optional)
+
 - For lightweight code evaluation without Docker overhead
 - Language-specific WASM runtimes for Python, JS, etc.
 
@@ -47,13 +50,14 @@ Agent-generated code must execute in isolation. The host machine should never be
 
 ```typescript
 interface CommandPolicy {
-  allowPatterns: RegExp[];   // commands that can auto-execute
-  denyPatterns: RegExp[];    // commands that are always blocked
-  warnPatterns: RegExp[];    // commands that require approval
+  allowPatterns: RegExp[]; // commands that can auto-execute
+  denyPatterns: RegExp[]; // commands that are always blocked
+  warnPatterns: RegExp[]; // commands that require approval
 }
 ```
 
 Default deny patterns:
+
 - `rm -rf /`, `rm -rf ~`, any recursive delete outside project
 - `curl | sh`, `wget | bash` — pipe-to-shell patterns
 - `chmod 777`, `chown` — permission changes
