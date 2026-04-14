@@ -1,8 +1,8 @@
 # Code One — Master Action Plan
 
-**Last updated:** 2026-04-14 (session 3)
-**Overall completion:** ~35% backend, ~28% total
-**Current branch:** `feat/context-engine`
+**Last updated:** 2026-04-14 (session 4 — post-audit)
+**Overall completion:** ~40% backend, ~30% total
+**Current branch:** `main`
 **Repository:** https://github.com/Ghenghis/code-one
 
 > If you are an AI agent picking this up for the first time, read this document
@@ -131,74 +131,126 @@ Package: `packages/ai-gateway` — 8 source files, 7 test files, 111 tests
 | Token tracker + cost governor | Per-model pricing, budget enforcement | 18 tests |
 | AIGateway facade | Unified entry point composing all subsystems | 13 tests |
 
+### Milestone 4 — Context Engine (60% — core merged, advanced features deferred)
+
+Branch: `feat/context-engine` (merged to main via PR #4)
+
+Package: `packages/context-engine` — 6 source files, 5 test files, 66 tests
+
+| Subsystem | Implementation | Tests |
+|-----------|---------------|-------|
+| SymbolIndex | In-memory symbol store, file/name/kind/prefix/fuzzy lookups | Full coverage |
+| PageRank | Iterative with damping, dangling node redistribution | Full coverage |
+| RepoMapBuilder | Files, symbols, deps, active-file boost, PageRank | Full coverage |
+| InMemoryStore | 4-scope KV with TTL, substring search | Full coverage |
+| ContextAssembler | Greedy budget fill, per-kind limits, truncation | Full coverage |
+
+Deferred to M4b: tree-sitter parser, embedding store, RAG retriever, LSP diagnostics ingestion.
+
+### Milestone 5 — Agent Core (50% — core merged, task-graph/subagents deferred)
+
+Branch: `feat/agent-core` (merged to main via PR #5)
+
+Package: `packages/agent-core` — 6 source files, 5 test files, 80 tests
+
+| Subsystem | Implementation | Tests |
+|-----------|---------------|-------|
+| EventStream | Append-only, typed subscriptions, causal chains | Full coverage |
+| ToolRegistryImpl | CRUD, mode-based allow/deny, glob patterns | Full coverage |
+| ApprovalGate | Risk/trust matrix, auto-approve, pending flow | Full coverage |
+| CheckpointManager | Create/restore with structuredClone, prune | Full coverage |
+| AgentLoop | Plan-Act-Observe-Decide, pause/resume, auto-checkpoint | Full coverage |
+
+Deferred to M5b: task graph executor, subagent spawner, subagent isolation, built-in mode presets, agent-runner app.
+
 ---
 
 ## 5. What REMAINS — Complete Task List
 
 ### Phase 1: Backend Infrastructure (no GUI)
 
-#### Priority 2: AI Gateway — Milestone 3 Backend (DONE ✓)
+#### Priority 1: Agent Core Completion — Milestone 5b
 
-Merged via PR #3. See "Milestone 3" in section 4.
-
-#### Priority 3: Context Engine — Milestone 4 (IN PROGRESS)
-
-Branch: `feat/context-engine`
-Package: `packages/context-engine`
-Types: `packages/shared-types/src/graph.ts` (RepositoryMap types already defined)
+Branch: `feat/agent-core-v2`
+Packages: `packages/agent-core`, `packages/task-graph`, `apps/agent-runner`
 
 | Task | Description |
 |------|-------------|
-| Tree-sitter parser | Parse source files into AST, extract symbols |
-| Symbol index | Store symbols with file, line, kind, name |
-| Repo map builder | Build file-to-symbol graph |
-| PageRank ranker | Rank files by structural importance |
-| Active file prioritizer | Boost files open/recently edited |
-| Diagnostics ingestion | Feed LSP diagnostics into context |
-| Embedding store | Store/retrieve vector embeddings (local or API) |
-| RAG retriever | Query relevant chunks given a prompt |
-| Memory layer | Scoped memory (session/user/project) read/write |
-| Context assembler | Combine sources, compress, respect token budget |
-
-Exit criteria:
-- Top-5 recall >= 70% on test queries
-- 10k+ file repos index in <30s, queries <2s
-- Memory scoped and reviewable
-- Context compression reduces tokens by >= 40%
-
-#### Priority 4: Agent Core — Milestone 5
-
-Branch: `feat/agent-core`
-Packages: `packages/agent-core`, `packages/task-graph`
-Types: `packages/shared-types/src/events.ts`, `modes.ts`, `graph.ts`
-
-| Task | Description |
-|------|-------------|
-| Append-only event stream | Typed event persistence (SQLite) |
-| Tool call registry | Register/lookup tools, validate schemas |
-| Agent loop | Plan → Act → Observe → Decide cycle |
-| Mode system | Ask, Architect, Code, Debug, Agent + custom modes |
-| Tool permission resolver | Mode → allowed tools mapping |
-| Approval gate engine | Block risky actions, present to user for decision |
-| Checkpoint manager | Snapshot state, restore on rollback |
-| Interrupt/resume | Pause agent, resume from checkpoint |
 | Task graph executor | Planner, executor, reviewer nodes |
 | Graph state reducers | Merge concurrent node outputs |
 | Subagent spawner | Spawn child agents with isolated context |
 | Subagent isolation | No parent memory leakage, budget limits |
+| Built-in mode presets | Pre-register Ask, Architect, Code, Debug, Agent modes |
+| Agent-runner app | Standalone agent process |
 
 Exit criteria:
-- Agent can plan, act, pause, resume, complete (5-step scenario)
-- All risky actions gated with approval
-- Session replay from events (10+ events)
-- Rollback to checkpoint (state diff verified)
-- Subagent isolation enforced
 - Task graph supports 3+ concurrent nodes
+- Subagent isolation enforced (no memory leakage)
+- Session replay from events (10+ events)
+- Built-in modes functional with correct tool permissions
 
-#### Priority 5: Remote/DevOps — Milestone 6
+#### Priority 2: Git + Terminal — Milestone 6
 
 Branch: `feat/remote`
-Package: `packages/remote`, `packages/git-tools`
+Packages: `packages/git-tools`, `packages/terminal` (backend only)
+
+| Task | Description |
+|------|-------------|
+| Git status provider | Branch, staged, unstaged, untracked |
+| Git operations | Commit, push, pull, branch, checkout |
+| PR workflow | Create PR via GitHub API (gh) |
+| Terminal backend | node-pty bridge, IPC pipe to renderer |
+| Agent command execution | Agent can run terminal commands and observe output |
+
+Exit criteria:
+- Git operations functional and shell-safe
+- Terminal backend pipes output via IPC
+- Agent can execute commands and read stdout/stderr
+
+#### Priority 3: MCP + Skills — Milestone 7
+
+Branch: `feat/skills-mcp`
+Packages: `packages/skills`, `packages/mcp`
+
+| Task | Description |
+|------|-------------|
+| MCP client | Connect to MCP servers, discover tools |
+| MCP tool bridge | Register MCP tools in kernel tool registry |
+| Tool schema validator | Validate tool schemas against spec |
+| Skill manifest format | JSON schema for skill packages |
+| Skill installer | Install, activate, uninstall from local/remote |
+| Skill permission scoping | Skill-private memory, capability grants |
+| Skill runtime | Execute skill logic in sandboxed context |
+| Plugin contribution points | Modules can add commands, settings, menus |
+
+Exit criteria:
+- MCP tools appear in registry (tested with 2+ servers)
+- Skills install/activate/uninstall without side effects
+- Plugin crashes don't bring down host
+- Skill memory scopes enforced
+- Schema validation rejects malformed schemas (5+ negative tests)
+
+#### Priority 4: Context Engine Completion — Milestone 4b
+
+Branch: `feat/context-engine-v2`
+Package: `packages/context-engine`
+
+| Task | Description |
+|------|-------------|
+| Tree-sitter parser | Parse source files into AST, extract symbols |
+| Embedding store | Store/retrieve vector embeddings (local or API) |
+| RAG retriever | Query relevant chunks given a prompt |
+| LSP diagnostics ingestion | Feed LSP diagnostics into context |
+
+Exit criteria:
+- Top-5 recall >= 70% on test queries
+- 10k+ file repos index in <30s, queries <2s
+- Context compression reduces tokens by >= 40%
+
+#### Priority 5: Remote/DevOps — Milestone 8
+
+Branch: `feat/remote`
+Package: `packages/remote`
 
 | Task | Description |
 |------|-------------|
@@ -207,9 +259,6 @@ Package: `packages/remote`, `packages/git-tools`
 | SFTP file operations | Upload, download, list, stat |
 | Tunnel manager | Cloudflare tunnel create/destroy |
 | Docker client | Container start/stop/logs via Docker API |
-| Git status provider | Branch, staged, unstaged, untracked |
-| Git operations | Commit, push, pull, branch, checkout |
-| PR workflow | Create PR via GitHub API (gh) |
 | Deploy actions | Trigger deploy to configured targets |
 | Audit logger | Log all remote actions (who, what, when, target) |
 
@@ -217,33 +266,9 @@ Exit criteria:
 - SSH key + password auth works
 - SFTP 100MB+ file transfer without corruption
 - Deploy produces audit log entries
-- Git operations visible and shell-safe
 - Tunnel creation <5s, survives network interruption
 
-#### Priority 6: Skills/MCP — Milestone 7
-
-Branch: `feat/skills-mcp`
-Packages: `packages/skills`, `packages/mcp`
-
-| Task | Description |
-|------|-------------|
-| Skill manifest format | JSON schema for skill packages |
-| Skill installer | Install, activate, uninstall from local/remote |
-| Skill permission scoping | Skill-private memory, capability grants |
-| Skill runtime | Execute skill logic in sandboxed context |
-| MCP client | Connect to MCP servers, discover tools |
-| MCP tool bridge | Register MCP tools in kernel tool registry |
-| Tool schema validator | Validate tool schemas against spec |
-| Plugin contribution points | Modules can add commands, settings, menus |
-
-Exit criteria:
-- Skills install/activate/uninstall without side effects
-- MCP tools appear in registry (tested with 2+ servers)
-- Plugin crashes don't bring down host
-- Skill memory scopes enforced
-- Schema validation rejects malformed schemas (5+ negative tests)
-
-#### Priority 7: Model Lab — Milestone 8
+#### Priority 6: Model Lab — Milestone 9
 
 Branch: `feat/model-lab`
 Package: `packages/model-lab`
@@ -262,12 +287,32 @@ Exit criteria:
 - Heavy features optional (app starts without them)
 - Catalog loads 3+ providers in <1s
 
+#### Priority 7: SQLite Persistence — Milestone 10
+
+Branch: `feat/persistence`
+Packages: All packages with in-memory stores
+
+| Task | Description |
+|------|-------------|
+| SQLite migration system | Schema versioning, up/down migrations |
+| EventStream persistence | Replace in-memory array with SQLite table |
+| MemoryStore persistence | Replace in-memory map with SQLite table |
+| CheckpointManager persistence | Store snapshots in SQLite BLOB |
+| SettingsManager backend | SQLite settings backend |
+| TokenTracker persistence | Persist cost records across sessions |
+
+Exit criteria:
+- All stores survive process restart
+- WAL mode enabled (ADR-0004)
+- Migration system handles schema upgrades
+- No data loss on crash (WAL journal recovery)
+
 ### Phase 2: GUI Layer (LAST)
 
 Only start this after ALL of Phase 1 is complete and tested.
 
 Branch: `feat/gui-layer`
-Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/terminal`, `packages/preview`
+Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/terminal` (renderer), `packages/preview`
 
 | Task | Description |
 |------|-------------|
@@ -278,7 +323,7 @@ Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/term
 | Tab groups | Center area tab management |
 | Monaco editor integration | Multi-tab, syntax highlighting, minimap |
 | File tree panel | File CRUD with drag-drop |
-| Terminal panel | xterm.js + node-pty |
+| Terminal renderer | xterm.js frontend for terminal backend |
 | Preview panel | Webview / WebContainers |
 | Chat panel | Streaming markdown, code insertion |
 | Settings UI | Scoped settings editor |
@@ -296,21 +341,21 @@ Packages: `packages/ui`, `packages/editor`, `packages/workspace`, `packages/term
 
 | Package | Tier | Milestone | Status | Purpose |
 |---------|------|-----------|--------|---------|
-| `shared-types` | — | M0-M1 | Done | TypeScript type contracts |
+| `shared-types` | — | M0-M5 | Done | TypeScript type contracts |
 | `kernel` | 0 | M1 | Done | Command/event/module/permission/settings/layout/logging |
 | `test-harness` | — | M0 | Done | Shared test utilities |
-| `ai-gateway` | 2 | M3 | In progress | Provider abstraction, streaming, fallback, cost |
-| `context-engine` | 3 | M4 | Stub | Repo map, RAG, memory, ranking |
-| `agent-core` | 4 | M5 | Stub | Event stream, agent loop, modes, approval |
-| `task-graph` | 4 | M5 | Stub | LangGraph-style orchestration, checkpoints |
-| `git-tools` | 5 | M6 | Stub | Git operations |
-| `remote` | 5 | M6 | Stub | SSH, SFTP, tunnels, Docker |
-| `skills` | 6 | M7 | Stub | Skill runtime, installer |
+| `ai-gateway` | 2 | M3 | Done | Provider abstraction, streaming, fallback, cost |
+| `context-engine` | 3 | M4 | Done (60%) | Symbol index, repo map, memory, assembler. Deferred: tree-sitter, RAG, embeddings |
+| `agent-core` | 4 | M5 | Done (50%) | Event stream, agent loop, approval, checkpoint. Deferred: task-graph, subagents |
+| `task-graph` | 4 | M5b | Stub | LangGraph-style orchestration, checkpoints |
+| `git-tools` | — | M6 | Stub | Git operations |
+| `terminal` | 1 | M6/GUI | Stub | node-pty backend (M6), xterm.js renderer (GUI) |
 | `mcp` | 6 | M7 | Stub | MCP client, tool bridge |
-| `model-lab` | 7 | M8 | Stub | Model catalog, benchmarks, job runner |
+| `skills` | 6 | M7 | Stub | Skill runtime, installer |
+| `remote` | 5 | M8 | Stub | SSH, SFTP, tunnels, Docker |
+| `model-lab` | 7 | M9 | Stub | Model catalog, benchmarks, job runner |
 | `editor` | 1 | GUI | Stub | Monaco integration |
 | `workspace` | 1 | GUI | Stub | File tree, project management |
-| `terminal` | 1 | GUI | Stub | xterm.js integration |
 | `preview` | 1 | GUI | Stub | Webview, app launcher |
 | `ui` | 1 | GUI | Stub | Shared React components |
 
@@ -428,10 +473,11 @@ feat/gui-layer
 |----|--------|--------|----------|
 | #1 | `feat/e2e-gap-fixes` | 2026-04-14 | ADRs 0003-0005, runtime specs, GLOSSARY, INDEX, CONTRIBUTING, providers/modes/graph types, CI format:check |
 | #2 | `feat/desktop-electron-shell` | 2026-04-14 | Electron Forge + Vite, IPC bridge, preload API, main process, 19 tests, Master Action Plan |
+| #3 | `feat/ai-gateway` | 2026-04-14 | Provider system, OpenAI adapter, fallback router, cost governor, health monitor, gateway facade. 111 tests |
+| #4 | `feat/context-engine` | 2026-04-14 | Symbol index, PageRank, repo map, memory store, context assembler. 66 tests |
+| #5 | `feat/agent-core` | 2026-04-14 | Event stream, tool registry, approval gate, checkpoint manager, agent loop. 80 tests |
 
-### Open: `feat/ai-gateway` (active)
-
-AI gateway in progress. BaseProvider + IProvider done (13 tests). Remaining: OpenAI adapter, registry, health, fallback, cost, IPC.
+No open PRs. Next: M5b (task graph + subagents).
 
 ---
 
@@ -459,4 +505,5 @@ If starting a new session or recovering from a crash:
 |------|--------|----|
 | 2026-04-14 | Initial master plan created | Claude + User |
 | 2026-04-14 | M2 infra complete (PR #2 merged). PR #1 merged. AI gateway started. | Claude + User |
-| | M0, M1, M2-infra done. AI gateway Task 1 done (13 tests). | |
+| 2026-04-14 | M3 AI Gateway complete (PR #3). M4 Context Engine (PR #4). M5 Agent Core (PR #5). | Claude + User |
+| 2026-04-14 | Comprehensive project audit. Revised milestone sequence (M5b→M6→M7→M4b→M8→M9→M10→GUI). | Claude + User |
