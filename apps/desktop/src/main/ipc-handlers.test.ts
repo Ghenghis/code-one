@@ -120,6 +120,7 @@ describe("IPC Handlers", () => {
       "command:execute",
       "command:list",
       "event:emit",
+      "event:subscribe",
       "settings:get",
       "settings:set",
       "settings:get-scope",
@@ -229,6 +230,53 @@ describe("IPC Handlers", () => {
       const result = await handlers["permission:check"]({}, request);
       expect(kernel.permissions.check).toHaveBeenCalledWith(request);
       expect(result).toHaveProperty("decision", "allow");
+    });
+  });
+
+  describe("event:subscribe", () => {
+    it("subscribes to kernel events and returns ack", () => {
+      const sender = { send: vi.fn(), isDestroyed: vi.fn().mockReturnValue(false) };
+      const result = handlers["event:subscribe"](
+        { sender },
+        { type: "user:message" },
+      );
+      expect(kernel.events.on).toHaveBeenCalledWith("user:message", expect.any(Function));
+      expect(result).toHaveProperty("subscribed", true);
+      expect(result).toHaveProperty("type", "user:message");
+    });
+
+    it("forwards kernel events to sender webContents", () => {
+      const sender = { send: vi.fn(), isDestroyed: vi.fn().mockReturnValue(false) };
+      let capturedHandler: ((evt: unknown) => void) | undefined;
+      (kernel.events.on as ReturnType<typeof vi.fn>).mockImplementation(
+        (_type: string, handler: (evt: unknown) => void) => {
+          capturedHandler = handler;
+          return { dispose: vi.fn() };
+        },
+      );
+
+      handlers["event:subscribe"]({ sender }, { type: "tool:call" });
+
+      const event = { id: "e1", type: "tool:call", timestamp: Date.now() };
+      capturedHandler!(event);
+
+      expect(sender.send).toHaveBeenCalledWith("event:forward:tool:call", event);
+    });
+
+    it("does not forward if webContents is destroyed", () => {
+      const sender = { send: vi.fn(), isDestroyed: vi.fn().mockReturnValue(true) };
+      let capturedHandler: ((evt: unknown) => void) | undefined;
+      (kernel.events.on as ReturnType<typeof vi.fn>).mockImplementation(
+        (_type: string, handler: (evt: unknown) => void) => {
+          capturedHandler = handler;
+          return { dispose: vi.fn() };
+        },
+      );
+
+      handlers["event:subscribe"]({ sender }, { type: "tool:call" });
+      capturedHandler!({ id: "e1", type: "tool:call" });
+
+      expect(sender.send).not.toHaveBeenCalled();
     });
   });
 

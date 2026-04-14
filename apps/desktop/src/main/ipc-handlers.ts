@@ -54,6 +54,23 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
       kernel.events.emit(payload as BaseEvent);
     },
 
+    "event:subscribe": (_event: unknown, payload: unknown) => {
+      const { type } = payload as { type: string };
+      const sender = (_event as { sender: { send: (channel: string, ...args: unknown[]) => void; isDestroyed: () => boolean } }).sender;
+
+      const disposable = kernel.events.on(type, (evt: BaseEvent) => {
+        try {
+          if (!sender.isDestroyed()) {
+            sender.send(`event:forward:${type}`, evt);
+          }
+        } catch {
+          // webContents destroyed — safe to ignore
+        }
+      });
+
+      return { subscribed: true, type, dispose: disposable.dispose };
+    },
+
     "settings:get": (_event: unknown, payload: unknown) => {
       const { key } = payload as { key: string };
       return kernel.settings.get(key);
