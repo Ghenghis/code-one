@@ -2,11 +2,15 @@
 // Minimal renderer entry — Phase 2 will add React + UI components.
 // For now, verify IPC bridge is available.
 
+import type { CodeOneAPI } from "../preload/api.js";
+
 declare global {
   interface Window {
-    codeone: import("../preload/api.js").CodeOneAPI;
+    codeone: CodeOneAPI;
   }
 }
+
+export {};
 
 async function verifyBridge(): Promise<void> {
   if (!window.codeone) {

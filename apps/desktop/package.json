@@ -8,7 +8,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "build": "electron-forge make",
+    "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
     "test": "vitest run --passWithNoTests",

@@ -215,7 +215,7 @@ describe("IPC Handlers", () => {
 
   describe("module:list", () => {
     it("returns all registered modules", () => {
-      const result = handlers["module:list"]({});
+      handlers["module:list"]({});
       expect(kernel.modules.list).toHaveBeenCalled();
     });
   });
