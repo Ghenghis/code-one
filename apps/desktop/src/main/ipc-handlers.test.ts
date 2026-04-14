@@ -237,10 +237,10 @@ describe("IPC Handlers", () => {
       (kernel.commands.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("Command not found"),
       );
-      const result = await handlers["command:execute"](
+      const result = (await handlers["command:execute"](
         {},
         { commandId: "bad:cmd" },
-      );
+      )) as { error: { code: string; message: string } };
       expect(result).toHaveProperty("error");
       expect(result.error).toHaveProperty("code", "IPC_ERROR");
       expect(result.error).toHaveProperty("message", "Command not found");
