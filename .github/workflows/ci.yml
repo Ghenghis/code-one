@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Install, Lint, Typecheck, Test
+    name: Lint, Format, Typecheck, Test, Build
     runs-on: ubuntu-latest
 
     strategy:
@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Format check
+        run: pnpm format:check
+
       - name: Lint
         run: pnpm lint
 
@@ -39,3 +42,7 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high
+        continue-on-error: true

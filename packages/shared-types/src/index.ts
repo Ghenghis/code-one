@@ -13,6 +13,9 @@
  * - layout: Panel arrangement, tabs, layout tree
  * - ipc: Electron IPC message contracts
  * - logger: Structured logging
+ * - providers: Multi-provider abstraction, fallback chains, cost governance
+ * - modes: Mode system, tool definitions, tool registry
+ * - graph: Task graph, checkpoints, repo map, memory store
  */
 
 export * from "./events.js";
@@ -23,3 +26,6 @@ export * from "./settings.js";
 export * from "./layout.js";
 export * from "./ipc.js";
 export * from "./logger.js";
+export * from "./providers.js";
+export * from "./modes.js";
+export * from "./graph.js";
