@@ -128,6 +128,10 @@ describe("IPC Handlers", () => {
       "layout:set",
       "module:list",
       "permission:check",
+      "fs:read-file",
+      "fs:write-file",
+      "dialog:open-folder",
+      "dialog:open-file",
     ];
     for (const ch of expected) {
       expect(handlers[ch], `missing handler for ${ch}`).toBeTypeOf("function");

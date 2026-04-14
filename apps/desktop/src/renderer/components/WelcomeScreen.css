@@ -1,0 +1,53 @@
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--text-secondary);
+}
+
+.welcome__title {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.welcome__subtitle {
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.welcome__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.welcome__btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.welcome__btn:hover {
+  background: var(--bg-active);
+  border-color: var(--accent);
+}
+
+.welcome__shortcut {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 3px;
+}

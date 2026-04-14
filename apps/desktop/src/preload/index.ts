@@ -36,6 +36,16 @@ const api: CodeOneAPI = {
 
   checkPermission: (request) =>
     ipcRenderer.invoke("permission:check", request),
+
+  readFile: (filePath) =>
+    ipcRenderer.invoke("fs:read-file", { filePath }),
+
+  writeFile: (filePath, content) =>
+    ipcRenderer.invoke("fs:write-file", { filePath, content }),
+
+  openFolder: () => ipcRenderer.invoke("dialog:open-folder"),
+
+  openFileDialog: () => ipcRenderer.invoke("dialog:open-file"),
 };
 
 contextBridge.exposeInMainWorld("codeone", api);

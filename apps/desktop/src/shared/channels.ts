@@ -68,6 +68,30 @@ const CHANNEL_DESCRIPTORS: IPCChannelDescriptor[] = [
     description: "Check if a permission is granted for a module + capability",
     module: "kernel",
   },
+  {
+    channel: "fs:read-file",
+    direction: "renderer-to-main",
+    description: "Read file contents as UTF-8 string",
+    module: "fs",
+  },
+  {
+    channel: "fs:write-file",
+    direction: "renderer-to-main",
+    description: "Write UTF-8 string to file",
+    module: "fs",
+  },
+  {
+    channel: "dialog:open-folder",
+    direction: "renderer-to-main",
+    description: "Open native folder picker, returns selected path",
+    module: "dialog",
+  },
+  {
+    channel: "dialog:open-file",
+    direction: "renderer-to-main",
+    description: "Open native file picker, returns selected paths",
+    module: "dialog",
+  },
 ];
 
 export const IPC_CHANNELS = CHANNEL_DESCRIPTORS.map((d) => d.channel);

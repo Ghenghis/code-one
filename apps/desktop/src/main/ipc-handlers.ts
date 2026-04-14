@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import { dialog } from "electron";
 import type { Kernel } from "@code-one/kernel";
 import type {
   BaseEvent,
@@ -105,6 +107,41 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
     "permission:check": safeHandler(
       async (_event, payload: unknown) => {
         return kernel.permissions.check(payload as PermissionRequest);
+      },
+    ),
+
+    "fs:read-file": safeHandler(
+      async (_event, payload: unknown) => {
+        const { filePath } = payload as { filePath: string };
+        return fs.readFile(filePath, "utf-8");
+      },
+    ),
+
+    "fs:write-file": safeHandler(
+      async (_event, payload: unknown) => {
+        const { filePath, content } = payload as { filePath: string; content: string };
+        await fs.writeFile(filePath, content, "utf-8");
+        return { ok: true };
+      },
+    ),
+
+    "dialog:open-folder": safeHandler(
+      async () => {
+        const result = await dialog.showOpenDialog({
+          properties: ["openDirectory"],
+        });
+        if (result.canceled || result.filePaths.length === 0) return null;
+        return result.filePaths[0];
+      },
+    ),
+
+    "dialog:open-file": safeHandler(
+      async () => {
+        const result = await dialog.showOpenDialog({
+          properties: ["openFile", "multiSelections"],
+        });
+        if (result.canceled) return [];
+        return result.filePaths;
       },
     ),
   };
