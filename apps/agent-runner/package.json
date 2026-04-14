@@ -1,0 +1,16 @@
+{
+  "name": "@hybrid-ide/agent-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@hybrid-ide/shared-types": "workspace:*"
+  }
+}
