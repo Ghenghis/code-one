@@ -1,5 +1,5 @@
 {
-  "name": "@hybrid-ide/agent-runner",
+  "name": "@code-one/agent-runner",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,6 +11,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@hybrid-ide/shared-types": "workspace:*"
+    "@code-one/shared-types": "workspace:*"
   }
 }

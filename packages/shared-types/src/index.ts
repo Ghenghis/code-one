@@ -1,5 +1,5 @@
 /**
- * @hybrid-ide/shared-types
+ * @code-one/shared-types
  *
  * Typed contracts shared across all packages in the Hybrid IDE monorepo.
  * This package contains only type definitions and interfaces — no runtime code.

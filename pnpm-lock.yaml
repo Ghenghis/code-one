@@ -32,73 +32,73 @@ importers:
 
   apps/agent-runner:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
 
   apps/desktop:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
 
   packages/agent-core:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/ai-gateway:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/context-engine:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/editor:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/git-tools:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/kernel:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/mcp:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/model-lab:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/preview:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/remote:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
@@ -106,37 +106,37 @@ importers:
 
   packages/skills:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/task-graph:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/terminal:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/test-harness:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/ui:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
   packages/workspace:
     dependencies:
-      '@hybrid-ide/shared-types':
+      '@code-one/shared-types':
         specifier: workspace:*
         version: link:../shared-types
 
