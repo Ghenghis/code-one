@@ -3,3 +3,4 @@ export type { IProvider } from "./provider.js";
 export { OpenAICompatibleProvider } from "./adapters/openai-compatible.js";
 export { ProviderRegistry } from "./registry.js";
 export { HealthMonitor } from "./health.js";
+export { FallbackRouter, AllProvidersExhaustedError } from "./fallback.js";
