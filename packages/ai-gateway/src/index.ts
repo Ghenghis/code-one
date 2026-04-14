@@ -5,3 +5,5 @@ export { ProviderRegistry } from "./registry.js";
 export { HealthMonitor } from "./health.js";
 export { FallbackRouter, AllProvidersExhaustedError } from "./fallback.js";
 export { TokenTracker, computeCost, BudgetExceededError } from "./cost.js";
+export { AIGateway } from "./gateway.js";
+export type { GatewayConfig } from "./gateway.js";
