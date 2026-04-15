@@ -43,6 +43,9 @@ const api: CodeOneAPI = {
   writeFile: (filePath, content) =>
     ipcRenderer.invoke("fs:write-file", { filePath, content }),
 
+  listDirectory: (dirPath) =>
+    ipcRenderer.invoke("fs:list-dir", { dirPath }),
+
   openFolder: () => ipcRenderer.invoke("dialog:open-folder"),
 
   openFileDialog: () => ipcRenderer.invoke("dialog:open-file"),

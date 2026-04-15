@@ -8,6 +8,12 @@ import type {
   SettingsScope,
 } from "@code-one/shared-types";
 
+export interface DirEntry {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+}
+
 export interface CodeOneAPI {
   executeCommand(commandId: string, args?: Record<string, unknown>): Promise<unknown>;
   listCommands(): Promise<ReadonlyArray<CommandDescriptor>>;
@@ -22,6 +28,7 @@ export interface CodeOneAPI {
   checkPermission(request: PermissionRequest): Promise<PermissionResult>;
   readFile(filePath: string): Promise<string>;
   writeFile(filePath: string, content: string): Promise<{ ok: boolean }>;
+  listDirectory(dirPath: string): Promise<DirEntry[]>;
   openFolder(): Promise<string | null>;
   openFileDialog(): Promise<string[]>;
 }
@@ -40,6 +47,7 @@ export const API_METHODS: ReadonlyArray<keyof CodeOneAPI> = [
   "checkPermission",
   "readFile",
   "writeFile",
+  "listDirectory",
   "openFolder",
   "openFileDialog",
 ];

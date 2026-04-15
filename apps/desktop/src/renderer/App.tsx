@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { TabBar } from "./components/TabBar.js";
 import { EditorPane } from "./components/EditorPane.js";
+import { FileTree } from "./components/FileTree.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { WelcomeScreen } from "./components/WelcomeScreen.js";
 
@@ -45,6 +46,12 @@ function fileName(filePath: string): string {
 export function App() {
   const [tabs, setTabs] = useState<TabState[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [workspacePath, setWorkspacePath] = useState<string | null>(null);
+
+  const openWorkspace = useCallback(async () => {
+    const folder = await window.codeone.openFolder();
+    if (folder) setWorkspacePath(folder);
+  }, []);
 
   const openFile = useCallback(async (filePath?: string) => {
     let paths: string[];
@@ -138,7 +145,11 @@ export function App() {
       e.preventDefault();
       if (activeIndex >= 0) closeTab(activeIndex);
     }
-  }, [openFile, saveActiveFile, closeTab, activeIndex]);
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "O") {
+      e.preventDefault();
+      openWorkspace();
+    }
+  }, [openFile, saveActiveFile, closeTab, activeIndex, openWorkspace]);
 
   const activeTab = activeIndex >= 0 ? tabs[activeIndex] : null;
 
@@ -156,15 +167,47 @@ export function App() {
         onOpenFile={() => openFile()}
       />
 
-      <div style={{ flex: 1, overflow: "hidden" }}>
-        {activeTab ? (
-          <EditorPane
-            tab={activeTab}
-            onChange={(content) => onContentChange(activeIndex, content)}
-          />
-        ) : (
-          <WelcomeScreen onOpenFile={() => openFile()} />
+      <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+        {workspacePath && (
+          <div style={{
+            width: 240,
+            minWidth: 180,
+            borderRight: "1px solid var(--border)",
+            background: "var(--bg-secondary)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}>
+            <div style={{
+              padding: "6px 12px",
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              color: "var(--text-secondary)",
+              borderBottom: "1px solid var(--border)",
+            }}>
+              Explorer
+            </div>
+            <div style={{ flex: 1, overflow: "auto" }}>
+              <FileTree
+                workspacePath={workspacePath}
+                activeFilePath={activeTab?.filePath ?? null}
+                onFileSelect={(fp) => openFile(fp)}
+              />
+            </div>
+          </div>
         )}
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          {activeTab ? (
+            <EditorPane
+              tab={activeTab}
+              onChange={(content) => onContentChange(activeIndex, content)}
+            />
+          ) : (
+            <WelcomeScreen onOpenFile={() => openFile()} onOpenFolder={openWorkspace} />
+          )}
+        </div>
       </div>
 
       <StatusBar
