@@ -14,8 +14,7 @@ export {};
 
 async function verifyBridge(): Promise<void> {
   if (!window.codeone) {
-    document.getElementById("root")!.textContent =
-      "Error: IPC bridge not available";
+    document.getElementById("root")!.textContent = "Error: IPC bridge not available";
     return;
   }
 

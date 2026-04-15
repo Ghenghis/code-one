@@ -1,12 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ProviderRegistry } from "./registry.js";
 import { BaseProvider } from "./provider.js";
-import type {
-  ChatRequest,
-  ChatResponse,
-  ChatChunk,
-  ProviderConfig,
-} from "@code-one/shared-types";
+import type { ChatRequest, ChatResponse, ChatChunk, ProviderConfig } from "@code-one/shared-types";
 
 // ---------------------------------------------------------------------------
 // Test helpers

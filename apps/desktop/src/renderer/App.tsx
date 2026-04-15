@@ -53,75 +53,84 @@ export function App() {
     if (folder) setWorkspacePath(folder);
   }, []);
 
-  const openFile = useCallback(async (filePath?: string) => {
-    let paths: string[];
-    if (filePath) {
-      paths = [filePath];
-    } else {
-      paths = await window.codeone.openFileDialog();
-      if (paths.length === 0) return;
-    }
-
-    for (const fp of paths) {
-      // Don't open duplicates — focus existing tab
-      const existing = tabs.findIndex((t) => t.filePath === fp);
-      if (existing !== -1) {
-        setActiveIndex(existing);
-        continue;
+  const openFile = useCallback(
+    async (filePath?: string) => {
+      let paths: string[];
+      if (filePath) {
+        paths = [filePath];
+      } else {
+        paths = await window.codeone.openFileDialog();
+        if (paths.length === 0) return;
       }
 
+      for (const fp of paths) {
+        // Don't open duplicates — focus existing tab
+        const existing = tabs.findIndex((t) => t.filePath === fp);
+        if (existing !== -1) {
+          setActiveIndex(existing);
+          continue;
+        }
+
+        try {
+          const content = await window.codeone.readFile(fp);
+          const newTab: TabState = {
+            filePath: fp,
+            fileName: fileName(fp),
+            content,
+            dirty: false,
+            language: detectLanguage(fp),
+          };
+          setTabs((prev) => {
+            const next = [...prev, newTab];
+            setActiveIndex(next.length - 1);
+            return next;
+          });
+        } catch (err) {
+          console.error("Failed to open file:", fp, err);
+        }
+      }
+    },
+    [tabs],
+  );
+
+  const saveFile = useCallback(
+    async (index: number) => {
+      const tab = tabs[index];
+      if (!tab || !tab.dirty) return;
+
       try {
-        const content = await window.codeone.readFile(fp);
-        const newTab: TabState = {
-          filePath: fp,
-          fileName: fileName(fp),
-          content,
-          dirty: false,
-          language: detectLanguage(fp),
-        };
+        await window.codeone.writeFile(tab.filePath, tab.content);
         setTabs((prev) => {
-          const next = [...prev, newTab];
-          setActiveIndex(next.length - 1);
+          const next = [...prev];
+          next[index] = { ...next[index], dirty: false };
           return next;
         });
       } catch (err) {
-        console.error("Failed to open file:", fp, err);
+        console.error("Failed to save file:", tab.filePath, err);
       }
-    }
-  }, [tabs]);
-
-  const saveFile = useCallback(async (index: number) => {
-    const tab = tabs[index];
-    if (!tab || !tab.dirty) return;
-
-    try {
-      await window.codeone.writeFile(tab.filePath, tab.content);
-      setTabs((prev) => {
-        const next = [...prev];
-        next[index] = { ...next[index], dirty: false };
-        return next;
-      });
-    } catch (err) {
-      console.error("Failed to save file:", tab.filePath, err);
-    }
-  }, [tabs]);
+    },
+    [tabs],
+  );
 
   const saveActiveFile = useCallback(() => {
     if (activeIndex >= 0) saveFile(activeIndex);
   }, [activeIndex, saveFile]);
 
-  const closeTab = useCallback((index: number) => {
-    setTabs((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      // Adjust active index
-      if (next.length === 0) {
-        setActiveIndex(-1);
-      } else if (index <= activeIndex) {
-        setActiveIndex(Math.max(0, activeIndex - 1));
-      }
-      return next;
-    });
-  }, [activeIndex]);
+  const closeTab = useCallback(
+    (index: number) => {
+      setTabs((prev) => {
+        const next = prev.filter((_, i) => i !== index);
+        // Adjust active index
+        if (next.length === 0) {
+          setActiveIndex(-1);
+        } else if (index <= activeIndex) {
+          setActiveIndex(Math.max(0, activeIndex - 1));
+        }
+        return next;
+      });
+    },
+    [activeIndex],
+  );
 
   const onContentChange = useCallback((index: number, newContent: string) => {
     setTabs((prev) => {
@@ -132,24 +141,27 @@ export function App() {
   }, []);
 
   // Global keyboard shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "o") {
-      e.preventDefault();
-      openFile();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-      e.preventDefault();
-      saveActiveFile();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === "w") {
-      e.preventDefault();
-      if (activeIndex >= 0) closeTab(activeIndex);
-    }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "O") {
-      e.preventDefault();
-      openWorkspace();
-    }
-  }, [openFile, saveActiveFile, closeTab, activeIndex, openWorkspace]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "o") {
+        e.preventDefault();
+        openFile();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        saveActiveFile();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "w") {
+        e.preventDefault();
+        if (activeIndex >= 0) closeTab(activeIndex);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "O") {
+        e.preventDefault();
+        openWorkspace();
+      }
+    },
+    [openFile, saveActiveFile, closeTab, activeIndex, openWorkspace],
+  );
 
   const activeTab = activeIndex >= 0 ? tabs[activeIndex] : null;
 
@@ -169,24 +181,28 @@ export function App() {
 
       <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
         {workspacePath && (
-          <div style={{
-            width: 240,
-            minWidth: 180,
-            borderRight: "1px solid var(--border)",
-            background: "var(--bg-secondary)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}>
-            <div style={{
-              padding: "6px 12px",
-              fontSize: 11,
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-              color: "var(--text-secondary)",
-              borderBottom: "1px solid var(--border)",
-            }}>
+          <div
+            style={{
+              width: 240,
+              minWidth: 180,
+              borderRight: "1px solid var(--border)",
+              background: "var(--bg-secondary)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                padding: "6px 12px",
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                color: "var(--text-secondary)",
+                borderBottom: "1px solid var(--border)",
+              }}
+            >
               Explorer
             </div>
             <div style={{ flex: 1, overflow: "auto" }}>
@@ -210,10 +226,7 @@ export function App() {
         </div>
       </div>
 
-      <StatusBar
-        tab={activeTab}
-        tabCount={tabs.length}
-      />
+      <StatusBar tab={activeTab} tabCount={tabs.length} />
     </div>
   );
 }

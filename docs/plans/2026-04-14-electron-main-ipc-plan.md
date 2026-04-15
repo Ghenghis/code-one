@@ -13,6 +13,7 @@
 ### Task 1: Install Electron Forge Dependencies
 
 **Files:**
+
 - Modify: `apps/desktop/package.json`
 
 **Step 1: Update package.json with all required dependencies**
@@ -71,6 +72,7 @@ git commit -m "feat(desktop): add Electron Forge and Vite plugin dependencies"
 ### Task 2: Create Electron Forge and Vite Configuration
 
 **Files:**
+
 - Create: `apps/desktop/forge.config.ts`
 - Create: `apps/desktop/vite.main.config.ts`
 - Create: `apps/desktop/vite.preload.config.ts`
@@ -170,6 +172,7 @@ git commit -m "feat(desktop): add Electron Forge and Vite configuration"
 ### Task 3: Define IPC Channel Registry
 
 **Files:**
+
 - Create: `apps/desktop/src/shared/channels.ts`
 - Create: `apps/desktop/src/shared/channels.test.ts`
 
@@ -312,9 +315,7 @@ export const IPC_CHANNELS = CHANNEL_DESCRIPTORS.map((d) => d.channel);
 
 const descriptorMap = new Map(CHANNEL_DESCRIPTORS.map((d) => [d.channel, d]));
 
-export function getChannelDescriptor(
-  channel: string,
-): IPCChannelDescriptor | undefined {
+export function getChannelDescriptor(channel: string): IPCChannelDescriptor | undefined {
   return descriptorMap.get(channel);
 }
 ```
@@ -336,6 +337,7 @@ git commit -m "feat(desktop): add typed IPC channel registry"
 ### Task 4: Create IPC Handler Factory (TDD)
 
 **Files:**
+
 - Create: `apps/desktop/src/main/ipc-handlers.test.ts`
 - Create: `apps/desktop/src/main/ipc-handlers.ts`
 
@@ -351,9 +353,7 @@ function mockKernel(): Kernel {
   return {
     commands: {
       execute: vi.fn().mockResolvedValue({ ok: true }),
-      list: vi.fn().mockReturnValue([
-        { id: "test:cmd", title: "Test Command" },
-      ]),
+      list: vi.fn().mockReturnValue([{ id: "test:cmd", title: "Test Command" }]),
       has: vi.fn(),
       register: vi.fn(),
       unregister: vi.fn(),
@@ -380,7 +380,14 @@ function mockKernel(): Kernel {
     },
     layout: {
       getState: vi.fn().mockReturnValue({
-        root: { kind: "panel", id: "root", panelType: "editor", position: "center", visible: true, weight: 1 },
+        root: {
+          kind: "panel",
+          id: "root",
+          panelType: "editor",
+          position: "center",
+          visible: true,
+          weight: 1,
+        },
         tabGroups: [],
         sidebarCollapsed: { left: false, right: false, bottom: false },
         panelSizes: {},
@@ -501,7 +508,14 @@ describe("IPC Handlers", () => {
 
   describe("event:emit", () => {
     it("delegates to kernel.events.emit", () => {
-      const event = { id: "e1", type: "user:message", timestamp: Date.now(), source: "user", sessionId: "s1", payload: { text: "hi" } };
+      const event = {
+        id: "e1",
+        type: "user:message",
+        timestamp: Date.now(),
+        source: "user",
+        sessionId: "s1",
+        payload: { text: "hi" },
+      };
       handlers["event:emit"]({}, event);
       expect(kernel.events.emit).toHaveBeenCalledWith(event);
     });
@@ -517,15 +531,8 @@ describe("IPC Handlers", () => {
 
   describe("settings:set", () => {
     it("sets a setting value at scope", () => {
-      handlers["settings:set"](
-        {},
-        { key: "editor.fontSize", value: 16, scope: "user" },
-      );
-      expect(kernel.settings.set).toHaveBeenCalledWith(
-        "editor.fontSize",
-        16,
-        "user",
-      );
+      handlers["settings:set"]({}, { key: "editor.fontSize", value: 16, scope: "user" });
+      expect(kernel.settings.set).toHaveBeenCalledWith("editor.fontSize", 16, "user");
     });
   });
 
@@ -548,7 +555,14 @@ describe("IPC Handlers", () => {
   describe("layout:set", () => {
     it("replaces layout state", () => {
       const state = {
-        root: { kind: "panel" as const, id: "r", panelType: "editor", position: "center" as const, visible: true, weight: 1 },
+        root: {
+          kind: "panel" as const,
+          id: "r",
+          panelType: "editor",
+          position: "center" as const,
+          visible: true,
+          weight: 1,
+        },
         tabGroups: [],
         sidebarCollapsed: { left: false, right: false, bottom: false },
         panelSizes: {},
@@ -582,10 +596,7 @@ describe("IPC Handlers", () => {
       (kernel.commands.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("Command not found"),
       );
-      const result = await handlers["command:execute"](
-        {},
-        { commandId: "bad:cmd" },
-      );
+      const result = await handlers["command:execute"]({}, { commandId: "bad:cmd" });
       expect(result).toHaveProperty("error");
       expect(result.error).toHaveProperty("code", "IPC_ERROR");
       expect(result.error).toHaveProperty("message", "Command not found");
@@ -640,16 +651,14 @@ function safeHandler(fn: HandlerFn): HandlerFn {
 
 export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
   return {
-    "command:execute": safeHandler(
-      async (_event, payload: unknown) => {
-        const { commandId, args } = payload as {
-          commandId: string;
-          args?: Record<string, unknown>;
-        };
-        const ctx: Partial<CommandContext> = args ? { args } : undefined;
-        return kernel.commands.execute(commandId, ctx);
-      },
-    ),
+    "command:execute": safeHandler(async (_event, payload: unknown) => {
+      const { commandId, args } = payload as {
+        commandId: string;
+        args?: Record<string, unknown>;
+      };
+      const ctx: Partial<CommandContext> = args ? { args } : undefined;
+      return kernel.commands.execute(commandId, ctx);
+    }),
 
     "command:list": (_event: unknown) => {
       return kernel.commands.list();
@@ -690,11 +699,9 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
       return kernel.modules.list();
     },
 
-    "permission:check": safeHandler(
-      async (_event, payload: unknown) => {
-        return kernel.permissions.check(payload as PermissionRequest);
-      },
-    ),
+    "permission:check": safeHandler(async (_event, payload: unknown) => {
+      return kernel.permissions.check(payload as PermissionRequest);
+    }),
   };
 }
 ```
@@ -716,6 +723,7 @@ git commit -m "feat(desktop): add IPC handler factory with full kernel delegatio
 ### Task 5: Create Preload Script with Typed API
 
 **Files:**
+
 - Create: `apps/desktop/src/preload/index.ts`
 - Create: `apps/desktop/src/preload/api.ts`
 - Create: `apps/desktop/src/preload/api.test.ts`
@@ -818,8 +826,7 @@ import type { CodeOneAPI } from "./api.js";
 import type { BaseEvent } from "@code-one/shared-types";
 
 const api: CodeOneAPI = {
-  executeCommand: (commandId, args) =>
-    ipcRenderer.invoke("command:execute", { commandId, args }),
+  executeCommand: (commandId, args) => ipcRenderer.invoke("command:execute", { commandId, args }),
 
   listCommands: () => ipcRenderer.invoke("command:list"),
 
@@ -837,11 +844,9 @@ const api: CodeOneAPI = {
 
   getSetting: (key) => ipcRenderer.invoke("settings:get", { key }),
 
-  setSetting: (key, value, scope) =>
-    ipcRenderer.invoke("settings:set", { key, value, scope }),
+  setSetting: (key, value, scope) => ipcRenderer.invoke("settings:set", { key, value, scope }),
 
-  getSettingsScope: (scope) =>
-    ipcRenderer.invoke("settings:get-scope", { scope }),
+  getSettingsScope: (scope) => ipcRenderer.invoke("settings:get-scope", { scope }),
 
   getLayout: () => ipcRenderer.invoke("layout:get"),
 
@@ -849,8 +854,7 @@ const api: CodeOneAPI = {
 
   listModules: () => ipcRenderer.invoke("module:list"),
 
-  checkPermission: (request) =>
-    ipcRenderer.invoke("permission:check", request),
+  checkPermission: (request) => ipcRenderer.invoke("permission:check", request),
 };
 
 contextBridge.exposeInMainWorld("codeone", api);
@@ -873,6 +877,7 @@ git commit -m "feat(desktop): add typed preload API with contextBridge"
 ### Task 6: Create Main Process Entry
 
 **Files:**
+
 - Create: `apps/desktop/src/main/index.ts`
 - Modify: `apps/desktop/tsconfig.json`
 
@@ -888,10 +893,7 @@ git commit -m "feat(desktop): add typed preload API with contextBridge"
     "types": ["node"]
   },
   "include": ["src"],
-  "references": [
-    { "path": "../../packages/shared-types" },
-    { "path": "../../packages/kernel" }
-  ]
+  "references": [{ "path": "../../packages/shared-types" }, { "path": "../../packages/kernel" }]
 }
 ```
 
@@ -966,9 +968,7 @@ function createWindow(): BrowserWindow {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
   kernel.logger.info("Main window created");
@@ -1022,6 +1022,7 @@ git commit -m "feat(desktop): add Electron main process with kernel bootstrap an
 ### Task 7: Create Minimal Renderer Placeholder
 
 **Files:**
+
 - Create: `apps/desktop/src/renderer/index.html`
 - Create: `apps/desktop/src/renderer/index.ts`
 
@@ -1060,8 +1061,7 @@ declare global {
 
 async function verifyBridge(): Promise<void> {
   if (!window.codeone) {
-    document.getElementById("root")!.textContent =
-      "Error: IPC bridge not available";
+    document.getElementById("root")!.textContent = "Error: IPC bridge not available";
     return;
   }
 
@@ -1109,6 +1109,7 @@ Expected: No errors (fix any issues)
 
 Run: `cd G:\Github\New_Project/apps/desktop && pnpm start`
 Expected:
+
 - Electron window opens with title "Code One"
 - Window displays "Code One — Kernel connected. Layout: panel, Modules: 0, Commands: 0"
 - Console shows kernel initialization logs
@@ -1118,6 +1119,7 @@ Expected:
 **Step 5: Verify clean quit**
 
 Close the window. Check terminal output for:
+
 - "App quitting — shutting down kernel"
 - "Kernel shutdown complete"
 - Process exits cleanly
@@ -1133,16 +1135,16 @@ git commit -m "feat(desktop): Electron shell with kernel IPC bridge — M2 infra
 
 ### Task Summary
 
-| Task | Description | Tests |
-|------|-------------|-------|
-| 1 | Electron Forge dependencies | — |
-| 2 | Forge + Vite configuration | — |
-| 3 | IPC channel registry | 5 |
-| 4 | IPC handler factory | 12 |
-| 5 | Preload script + typed API | 2 |
-| 6 | Main process entry | typecheck |
-| 7 | Renderer placeholder | — |
-| 8 | End-to-end verification | all |
+| Task | Description                 | Tests     |
+| ---- | --------------------------- | --------- |
+| 1    | Electron Forge dependencies | —         |
+| 2    | Forge + Vite configuration  | —         |
+| 3    | IPC channel registry        | 5         |
+| 4    | IPC handler factory         | 12        |
+| 5    | Preload script + typed API  | 2         |
+| 6    | Main process entry          | typecheck |
+| 7    | Renderer placeholder        | —         |
+| 8    | End-to-end verification     | all       |
 
 **Total new test cases:** 19
 **Exit criteria:** App launches, kernel initializes, IPC round-trips work, clean shutdown.

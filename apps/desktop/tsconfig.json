@@ -8,8 +8,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "references": [
-    { "path": "../../packages/shared-types" },
-    { "path": "../../packages/kernel" }
-  ]
+  "references": [{ "path": "../../packages/shared-types" }, { "path": "../../packages/kernel" }]
 }

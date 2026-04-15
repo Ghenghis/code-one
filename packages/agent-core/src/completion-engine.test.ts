@@ -133,7 +133,9 @@ describe("invalid state transitions", () => {
 
   it("cannot start verification for a pending task", () => {
     const s = createCompletionTaskState("t1");
-    expect(() => recordVerificationStarted(s)).toThrow('Must be "in_progress" or "awaiting_verification"');
+    expect(() => recordVerificationStarted(s)).toThrow(
+      'Must be "in_progress" or "awaiting_verification"',
+    );
   });
 
   it("cannot pass verification that hasn't started", () => {

@@ -16,11 +16,7 @@ export type TaskStatus =
   | "verified"
   | "complete";
 
-export type VerificationStatus =
-  | "not_started"
-  | "running"
-  | "passed"
-  | "failed";
+export type VerificationStatus = "not_started" | "running" | "passed" | "failed";
 
 export interface CompletionTaskState {
   taskId: string;
@@ -60,9 +56,7 @@ export function createCompletionTaskState(
 
 // ── Transition Functions ───────────────────────────────────────────
 
-export function recordTaskStarted(
-  state: CompletionTaskState,
-): CompletionTaskState {
+export function recordTaskStarted(state: CompletionTaskState): CompletionTaskState {
   if (state.status !== "pending" && state.status !== "retrying") {
     throw new Error(
       `Cannot start task in "${state.status}" state. Must be "pending" or "retrying".`,
@@ -71,10 +65,7 @@ export function recordTaskStarted(
   return { ...state, status: "in_progress" };
 }
 
-export function recordTaskFailure(
-  state: CompletionTaskState,
-  reason: string,
-): CompletionTaskState {
+export function recordTaskFailure(state: CompletionTaskState, reason: string): CompletionTaskState {
   if (state.status !== "in_progress") {
     throw new Error(
       `Cannot record failure for task in "${state.status}" state. Must be "in_progress".`,
@@ -93,9 +84,7 @@ export function recordTaskFailure(
   };
 }
 
-export function recordVerificationStarted(
-  state: CompletionTaskState,
-): CompletionTaskState {
+export function recordVerificationStarted(state: CompletionTaskState): CompletionTaskState {
   if (state.status !== "in_progress" && state.status !== "awaiting_verification") {
     throw new Error(
       `Cannot start verification for task in "${state.status}" state. Must be "in_progress" or "awaiting_verification".`,
@@ -108,9 +97,7 @@ export function recordVerificationStarted(
   };
 }
 
-export function recordVerificationPassed(
-  state: CompletionTaskState,
-): CompletionTaskState {
+export function recordVerificationPassed(state: CompletionTaskState): CompletionTaskState {
   if (state.verificationStatus !== "running") {
     throw new Error(
       `Cannot pass verification when verification status is "${state.verificationStatus}". Must be "running".`,
@@ -159,20 +146,24 @@ export function canMarkComplete(state: CompletionTaskState): CompletionDecision 
     return { canComplete: false, reason: "Task is awaiting verification result." };
   }
   if (state.verificationStatus !== "passed") {
-    return { canComplete: false, reason: `Verification has not passed (status: "${state.verificationStatus}").` };
+    return {
+      canComplete: false,
+      reason: `Verification has not passed (status: "${state.verificationStatus}").`,
+    };
   }
   if (state.escalationRequired) {
     return { canComplete: false, reason: "Escalation is required." };
   }
   if (state.status !== "verified") {
-    return { canComplete: false, reason: `Task status must be "verified" to complete (current: "${state.status}").` };
+    return {
+      canComplete: false,
+      reason: `Task status must be "verified" to complete (current: "${state.status}").`,
+    };
   }
   return { canComplete: true, reason: "All completion conditions satisfied." };
 }
 
-export function evaluateCompletion(
-  state: CompletionTaskState,
-): CompletionTaskState {
+export function evaluateCompletion(state: CompletionTaskState): CompletionTaskState {
   const decision = canMarkComplete(state);
   if (!decision.canComplete) {
     throw new Error(`Cannot complete task: ${decision.reason}`);
@@ -187,7 +178,10 @@ export function canRetry(state: CompletionTaskState): RetryDecision {
     return { canRetry: false, reason: `Task is in "${state.status}" state, not retryable.` };
   }
   if (state.retryCount >= state.maxRetries) {
-    return { canRetry: false, reason: `Retry limit reached (${state.retryCount}/${state.maxRetries}). Escalation required.` };
+    return {
+      canRetry: false,
+      reason: `Retry limit reached (${state.retryCount}/${state.maxRetries}). Escalation required.`,
+    };
   }
   return { canRetry: true, reason: "Retry available." };
 }

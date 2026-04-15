@@ -46,10 +46,7 @@ export class AIGateway {
   constructor(config: GatewayConfig) {
     this.registry = new ProviderRegistry();
     this.router = new FallbackRouter(this.registry);
-    this.healthMonitor = new HealthMonitor(
-      this.registry,
-      config.healthCheckIntervalMs ?? 30_000,
-    );
+    this.healthMonitor = new HealthMonitor(this.registry, config.healthCheckIntervalMs ?? 30_000);
     this.tokenTracker = new TokenTracker(config.sessionId, config.budget);
   }
 
@@ -90,11 +87,7 @@ export class AIGateway {
 
     const response = await this.router.chat(request);
 
-    this.tokenTracker.record(
-      response.providerId,
-      response.modelId,
-      response.usage,
-    );
+    this.tokenTracker.record(response.providerId, response.modelId, response.usage);
 
     return response;
   }
@@ -117,11 +110,7 @@ export class AIGateway {
 
     // Record usage from the final chunk if available
     if (lastChunk?.usage) {
-      this.tokenTracker.record(
-        lastChunk.providerId,
-        lastChunk.modelId,
-        lastChunk.usage,
-      );
+      this.tokenTracker.record(lastChunk.providerId, lastChunk.modelId, lastChunk.usage);
     }
   }
 

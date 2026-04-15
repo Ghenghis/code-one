@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  ContextAssembler,
-  estimateTokens,
-  type ContextItem,
-} from "./context-assembler.js";
+import { ContextAssembler, estimateTokens, type ContextItem } from "./context-assembler.js";
 import type { RepositoryMap, MemoryEntry } from "@code-one/shared-types";
 
 // ---------------------------------------------------------------------------
@@ -143,19 +139,38 @@ describe("ContextAssembler", () => {
       const repoMap: RepositoryMap = {
         rootPath: "/repo",
         files: [
-          { path: "src/a.ts", language: "typescript", sizeBytes: 100, lineCount: 10, pageRank: 0.6, modifiedAt: Date.now() },
-          { path: "src/b.ts", language: "typescript", sizeBytes: 200, lineCount: 20, pageRank: 0.4, modifiedAt: Date.now() },
+          {
+            path: "src/a.ts",
+            language: "typescript",
+            sizeBytes: 100,
+            lineCount: 10,
+            pageRank: 0.6,
+            modifiedAt: Date.now(),
+          },
+          {
+            path: "src/b.ts",
+            language: "typescript",
+            sizeBytes: 200,
+            lineCount: 20,
+            pageRank: 0.4,
+            modifiedAt: Date.now(),
+          },
         ],
         symbols: [
-          { name: "foo", kind: "function", filePath: "src/a.ts", line: 1, column: 0, exported: true },
+          {
+            name: "foo",
+            kind: "function",
+            filePath: "src/a.ts",
+            line: 1,
+            column: 0,
+            exported: true,
+          },
         ],
         dependencies: [],
         builtAt: Date.now(),
       };
 
-      const contents = new Map([
-        ["src/a.ts", "export function foo() { return 1; }"],
-      ]);
+      const contents = new Map([["src/a.ts", "export function foo() { return 1; }"]]);
 
       const items = assembler.contextFromRepoMap(repoMap, contents);
 
@@ -175,11 +190,32 @@ describe("ContextAssembler", () => {
       const repoMap: RepositoryMap = {
         rootPath: "/repo",
         files: [
-          { path: "src/index.ts", language: "typescript", sizeBytes: 500, lineCount: 30, pageRank: 0.8, modifiedAt: Date.now() },
+          {
+            path: "src/index.ts",
+            language: "typescript",
+            sizeBytes: 500,
+            lineCount: 30,
+            pageRank: 0.8,
+            modifiedAt: Date.now(),
+          },
         ],
         symbols: [
-          { name: "main", kind: "function", filePath: "src/index.ts", line: 1, column: 0, exported: true },
-          { name: "helper", kind: "function", filePath: "src/index.ts", line: 10, column: 0, exported: true },
+          {
+            name: "main",
+            kind: "function",
+            filePath: "src/index.ts",
+            line: 1,
+            column: 0,
+            exported: true,
+          },
+          {
+            name: "helper",
+            kind: "function",
+            filePath: "src/index.ts",
+            line: 10,
+            column: 0,
+            exported: true,
+          },
         ],
         dependencies: [],
         builtAt: Date.now(),
@@ -255,7 +291,12 @@ describe("ContextAssembler", () => {
     it("creates a single high-relevance item from diagnostics", () => {
       const assembler = new ContextAssembler({ budgetTokens: 5000 });
       const diags = [
-        { file: "src/app.ts", line: 42, message: "Type error: x is not a number", severity: "error" },
+        {
+          file: "src/app.ts",
+          line: 42,
+          message: "Type error: x is not a number",
+          severity: "error",
+        },
         { file: "src/utils.ts", line: 10, message: "Unused import", severity: "warning" },
       ];
 

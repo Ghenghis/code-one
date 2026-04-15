@@ -52,9 +52,7 @@ export class CheckpointManager {
 
   /** Get the latest checkpoint for a session. */
   getLatest(sessionId: string): CheckpointData | undefined {
-    const sessionCheckpoints = this._checkpoints.filter(
-      (c) => c.sessionId === sessionId,
-    );
+    const sessionCheckpoints = this._checkpoints.filter((c) => c.sessionId === sessionId);
     return sessionCheckpoints[sessionCheckpoints.length - 1];
   }
 
@@ -76,7 +74,9 @@ export class CheckpointManager {
   /**
    * Restore to the latest checkpoint for a session.
    */
-  restoreLatest(sessionId: string): { checkpoint: CheckpointData; state: Record<string, unknown> } | undefined {
+  restoreLatest(
+    sessionId: string,
+  ): { checkpoint: CheckpointData; state: Record<string, unknown> } | undefined {
     const latest = this.getLatest(sessionId);
     if (!latest) return undefined;
     return {

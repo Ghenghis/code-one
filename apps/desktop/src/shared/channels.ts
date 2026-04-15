@@ -22,8 +22,7 @@ const CHANNEL_DESCRIPTORS: IPCChannelDescriptor[] = [
   {
     channel: "event:subscribe",
     direction: "bidirectional",
-    description:
-      "Subscribe to events; main forwards matching events to renderer",
+    description: "Subscribe to events; main forwards matching events to renderer",
     module: "kernel",
   },
   {
@@ -104,8 +103,6 @@ export const IPC_CHANNELS = CHANNEL_DESCRIPTORS.map((d) => d.channel);
 
 const descriptorMap = new Map(CHANNEL_DESCRIPTORS.map((d) => [d.channel, d]));
 
-export function getChannelDescriptor(
-  channel: string,
-): IPCChannelDescriptor | undefined {
+export function getChannelDescriptor(channel: string): IPCChannelDescriptor | undefined {
   return descriptorMap.get(channel);
 }

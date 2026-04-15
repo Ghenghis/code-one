@@ -174,9 +174,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const result = await router.chat(makeRequest());
       expect(result.providerId).toBe("p2");
@@ -194,9 +196,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const result = await router.chat(makeRequest());
       expect(result.providerId).toBe("p2");
@@ -216,9 +220,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const result = await router.chat(makeRequest());
       expect(result.providerId).toBe("p2");
@@ -233,9 +239,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("nonexistent"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("nonexistent"), makeProfile("p2")],
+        }),
+      );
 
       const result = await router.chat(makeRequest());
       expect(result.providerId).toBe("p2");
@@ -253,10 +261,12 @@ describe("FallbackRouter", () => {
       registry.register(p1);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1")],
-        exhaustedStrategy: "error",
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1")],
+          exhaustedStrategy: "error",
+        }),
+      );
 
       try {
         await router.chat(makeRequest());
@@ -278,10 +288,12 @@ describe("FallbackRouter", () => {
       registry.register(p1);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1")],
-        exhaustedStrategy: "queue",
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1")],
+          exhaustedStrategy: "queue",
+        }),
+      );
 
       await expect(router.chat(makeRequest())).rejects.toBeInstanceOf(AllProvidersExhaustedError);
     });
@@ -293,10 +305,12 @@ describe("FallbackRouter", () => {
       registry.register(p1);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1")],
-        exhaustedStrategy: "degrade",
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1")],
+          exhaustedStrategy: "degrade",
+        }),
+      );
 
       const result = await router.chat(makeRequest());
       expect(result.content).toContain("unavailable");
@@ -348,9 +362,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const chunks: ChatChunk[] = [];
       for await (const chunk of router.chatStream(makeRequest({ stream: true }))) {
@@ -409,9 +425,11 @@ describe("FallbackRouter", () => {
       registry.register(p2);
 
       const router = new FallbackRouter(registry);
-      router.setChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      router.setChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const result = router.resolve("chat");
       expect(result).toBeDefined();

@@ -25,11 +25,7 @@ export class InMemoryStore implements MemoryStore {
     return Date.now() > entry.updatedAt + entry.ttlSeconds * 1000;
   }
 
-  async get(
-    scope: MemoryScope,
-    namespace: string,
-    key: string,
-  ): Promise<MemoryEntry | undefined> {
+  async get(scope: MemoryScope, namespace: string, key: string): Promise<MemoryEntry | undefined> {
     const compositeKey = this._key(scope, namespace, key);
     const entry = this._entries.get(compositeKey);
     if (!entry) return undefined;
@@ -40,9 +36,7 @@ export class InMemoryStore implements MemoryStore {
     return { ...entry };
   }
 
-  async set(
-    input: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt">,
-  ): Promise<MemoryEntry> {
+  async set(input: Omit<MemoryEntry, "id" | "createdAt" | "updatedAt">): Promise<MemoryEntry> {
     const compositeKey = this._key(input.scope, input.namespace, input.key);
     const existing = this._entries.get(compositeKey);
     const now = Date.now();
@@ -58,11 +52,7 @@ export class InMemoryStore implements MemoryStore {
     return { ...entry };
   }
 
-  async delete(
-    scope: MemoryScope,
-    namespace: string,
-    key: string,
-  ): Promise<boolean> {
+  async delete(scope: MemoryScope, namespace: string, key: string): Promise<boolean> {
     return this._entries.delete(this._key(scope, namespace, key));
   }
 
@@ -77,11 +67,7 @@ export class InMemoryStore implements MemoryStore {
     return results;
   }
 
-  async search(
-    scope: MemoryScope,
-    query: string,
-    limit = 20,
-  ): Promise<MemoryEntry[]> {
+  async search(scope: MemoryScope, query: string, limit = 20): Promise<MemoryEntry[]> {
     const lower = query.toLowerCase();
     const results: MemoryEntry[] = [];
 

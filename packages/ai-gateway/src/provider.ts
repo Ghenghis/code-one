@@ -62,8 +62,7 @@ export abstract class BaseProvider implements IProvider {
     if (this._outcomes.length > BaseProvider.MAX_SAMPLES) {
       this._outcomes.shift();
     }
-    this._health.avgLatencyMs =
-      this._latencies.reduce((a, b) => a + b, 0) / this._latencies.length;
+    this._health.avgLatencyMs = this._latencies.reduce((a, b) => a + b, 0) / this._latencies.length;
     this._health.errorRate = this._computeErrorRate();
     this._health.lastSuccessAt = Date.now();
     this._health.lastError = null;

@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BaseProvider } from "./provider.js";
-import type {
-  ChatRequest,
-  ChatResponse,
-  ChatChunk,
-  ProviderConfig,
-} from "@code-one/shared-types";
+import type { ChatRequest, ChatResponse, ChatChunk, ProviderConfig } from "@code-one/shared-types";
 
 class TestProvider extends BaseProvider {
   async chat(_request: ChatRequest): Promise<ChatResponse> {

@@ -37,16 +37,14 @@ function safeHandler(fn: HandlerFn): HandlerFn {
 
 export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
   return {
-    "command:execute": safeHandler(
-      async (_event, payload: unknown) => {
-        const { commandId, args } = payload as {
-          commandId: string;
-          args?: Record<string, unknown>;
-        };
-        const ctx: Partial<CommandContext> | undefined = args ? { args } : undefined;
-        return kernel.commands.execute(commandId, ctx);
-      },
-    ),
+    "command:execute": safeHandler(async (_event, payload: unknown) => {
+      const { commandId, args } = payload as {
+        commandId: string;
+        args?: Record<string, unknown>;
+      };
+      const ctx: Partial<CommandContext> | undefined = args ? { args } : undefined;
+      return kernel.commands.execute(commandId, ctx);
+    }),
 
     "command:list": (_event: unknown) => {
       return kernel.commands.list();
@@ -58,7 +56,14 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
 
     "event:subscribe": (_event: unknown, payload: unknown) => {
       const { type } = payload as { type: string };
-      const sender = (_event as { sender: { send: (channel: string, ...args: unknown[]) => void; isDestroyed: () => boolean } }).sender;
+      const sender = (
+        _event as {
+          sender: {
+            send: (channel: string, ...args: unknown[]) => void;
+            isDestroyed: () => boolean;
+          };
+        }
+      ).sender;
 
       const disposable = kernel.events.on(type, (evt: BaseEvent) => {
         try {
@@ -104,63 +109,51 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
       return kernel.modules.list();
     },
 
-    "permission:check": safeHandler(
-      async (_event, payload: unknown) => {
-        return kernel.permissions.check(payload as PermissionRequest);
-      },
-    ),
+    "permission:check": safeHandler(async (_event, payload: unknown) => {
+      return kernel.permissions.check(payload as PermissionRequest);
+    }),
 
-    "fs:read-file": safeHandler(
-      async (_event, payload: unknown) => {
-        const { filePath } = payload as { filePath: string };
-        return fs.readFile(filePath, "utf-8");
-      },
-    ),
+    "fs:read-file": safeHandler(async (_event, payload: unknown) => {
+      const { filePath } = payload as { filePath: string };
+      return fs.readFile(filePath, "utf-8");
+    }),
 
-    "fs:write-file": safeHandler(
-      async (_event, payload: unknown) => {
-        const { filePath, content } = payload as { filePath: string; content: string };
-        await fs.writeFile(filePath, content, "utf-8");
-        return { ok: true };
-      },
-    ),
+    "fs:write-file": safeHandler(async (_event, payload: unknown) => {
+      const { filePath, content } = payload as { filePath: string; content: string };
+      await fs.writeFile(filePath, content, "utf-8");
+      return { ok: true };
+    }),
 
-    "fs:list-dir": safeHandler(
-      async (_event, payload: unknown) => {
-        const { dirPath } = payload as { dirPath: string };
-        const entries = await fs.readdir(dirPath, { withFileTypes: true });
-        return entries
-          .filter((e) => !e.name.startsWith("."))
-          .map((e) => ({
-            name: e.name,
-            path: `${dirPath}/${e.name}`.replace(/\\/g, "/"),
-            isDirectory: e.isDirectory(),
-          }))
-          .sort((a, b) => {
-            if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
-            return a.name.localeCompare(b.name);
-          });
-      },
-    ),
-
-    "dialog:open-folder": safeHandler(
-      async () => {
-        const result = await dialog.showOpenDialog({
-          properties: ["openDirectory"],
+    "fs:list-dir": safeHandler(async (_event, payload: unknown) => {
+      const { dirPath } = payload as { dirPath: string };
+      const entries = await fs.readdir(dirPath, { withFileTypes: true });
+      return entries
+        .filter((e) => !e.name.startsWith("."))
+        .map((e) => ({
+          name: e.name,
+          path: `${dirPath}/${e.name}`.replace(/\\/g, "/"),
+          isDirectory: e.isDirectory(),
+        }))
+        .sort((a, b) => {
+          if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
+          return a.name.localeCompare(b.name);
         });
-        if (result.canceled || result.filePaths.length === 0) return null;
-        return result.filePaths[0];
-      },
-    ),
+    }),
 
-    "dialog:open-file": safeHandler(
-      async () => {
-        const result = await dialog.showOpenDialog({
-          properties: ["openFile", "multiSelections"],
-        });
-        if (result.canceled) return [];
-        return result.filePaths;
-      },
-    ),
+    "dialog:open-folder": safeHandler(async () => {
+      const result = await dialog.showOpenDialog({
+        properties: ["openDirectory"],
+      });
+      if (result.canceled || result.filePaths.length === 0) return null;
+      return result.filePaths[0];
+    }),
+
+    "dialog:open-file": safeHandler(async () => {
+      const result = await dialog.showOpenDialog({
+        properties: ["openFile", "multiSelections"],
+      });
+      if (result.canceled) return [];
+      return result.filePaths;
+    }),
   };
 }

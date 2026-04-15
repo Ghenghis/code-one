@@ -14,15 +14,15 @@ The next step is wiring the Electron desktop shell so that higher-tier backends 
 
 ### Phase 1: Backend Infrastructure (no GUI)
 
-| Priority | Scope | Milestone |
-|----------|-------|-----------|
-| 1 | Electron main process + IPC bridge + preload | M2 (partial) |
-| 2 | AI gateway: provider adapters, streaming, fallback, health, cost | M3 |
-| 3 | Context engine: repo map, indexing, RAG, memory, ranking | M4 |
-| 4 | Agent core: event bus, loop, modes, approval, task graph, subagents | M5 |
-| 5 | Remote/devops: SSH, SFTP, tunnels, Docker, git workflows | M6 |
-| 6 | Skills/MCP: skill runtime, MCP client, plugin SDK | M7 |
-| 7 | Model lab: catalog, benchmarks, job runner | M8 |
+| Priority | Scope                                                               | Milestone    |
+| -------- | ------------------------------------------------------------------- | ------------ |
+| 1        | Electron main process + IPC bridge + preload                        | M2 (partial) |
+| 2        | AI gateway: provider adapters, streaming, fallback, health, cost    | M3           |
+| 3        | Context engine: repo map, indexing, RAG, memory, ranking            | M4           |
+| 4        | Agent core: event bus, loop, modes, approval, task graph, subagents | M5           |
+| 5        | Remote/devops: SSH, SFTP, tunnels, Docker, git workflows            | M6           |
+| 6        | Skills/MCP: skill runtime, MCP client, plugin SDK                   | M7           |
+| 7        | Model lab: catalog, benchmarks, job runner                          | M8           |
 
 ### Phase 2: GUI (last)
 
@@ -38,12 +38,12 @@ Single BrowserWindow architecture. Approach A (simplest). Multi-window can be ad
 
 ### Technology Choices
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Build tooling | electron-forge + Vite plugin | Production packaging from day one |
-| IPC | Typed preload bridge via contextBridge | No `remote`, secure by default |
-| State sync | Zustand stores (renderer) ↔ IPC ↔ kernel (main) | Deferred to Phase 2, but contracts defined now |
-| Layout | allotment | Deferred to Phase 2, contracts in shared-types already |
+| Decision      | Choice                                          | Rationale                                              |
+| ------------- | ----------------------------------------------- | ------------------------------------------------------ |
+| Build tooling | electron-forge + Vite plugin                    | Production packaging from day one                      |
+| IPC           | Typed preload bridge via contextBridge          | No `remote`, secure by default                         |
+| State sync    | Zustand stores (renderer) ↔ IPC ↔ kernel (main) | Deferred to Phase 2, but contracts defined now         |
+| Layout        | allotment                                       | Deferred to Phase 2, contracts in shared-types already |
 
 ### Package Structure
 
@@ -70,6 +70,7 @@ apps/desktop/
 ### Main Process (src/main/index.ts)
 
 Responsibilities:
+
 - Initialize kernel via `createKernel()`
 - Create single BrowserWindow with preload script
 - Register IPC handlers that delegate to kernel subsystems
@@ -84,21 +85,21 @@ Exposes typed API via `contextBridge.exposeInMainWorld("codeone", { ... })`:
 interface CodeOneAPI {
   // Commands
   executeCommand(id: string, args?: unknown): Promise<unknown>;
-  
+
   // Events
   onEvent(channel: string, callback: (event: unknown) => void): () => void;
-  
+
   // Settings
   getSetting(scope: string, key: string): Promise<unknown>;
   setSetting(scope: string, key: string, value: unknown): Promise<void>;
-  
+
   // Layout
   getLayout(): Promise<LayoutState>;
   updateLayout(state: Partial<LayoutState>): Promise<void>;
-  
+
   // Modules
   getModules(): Promise<ModuleManifest[]>;
-  
+
   // Permissions
   checkPermission(moduleId: string, capability: string): Promise<boolean>;
 }
@@ -109,12 +110,14 @@ All methods use `ipcRenderer.invoke` (request/response) or `ipcRenderer.on` (eve
 ### IPC Handlers (src/main/ipc-handlers.ts)
 
 Each handler:
+
 1. Receives typed IPCRequest
 2. Delegates to kernel subsystem
 3. Returns typed IPCResponse
 4. Errors wrapped in IPCError format
 
 Handlers registered for:
+
 - `command:execute` → kernel.commands.execute()
 - `event:subscribe` → kernel.events.on() with main→renderer forwarding
 - `settings:get` / `settings:set` → kernel.settings

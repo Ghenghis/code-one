@@ -127,9 +127,7 @@ describe("OpenAICompatibleProvider", () => {
     });
 
     it("records failure and throws on non-200", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        new Response("rate limit exceeded", { status: 429 }),
-      );
+      fetchSpy.mockResolvedValueOnce(new Response("rate limit exceeded", { status: 429 }));
 
       const provider = new OpenAICompatibleProvider(testConfig());
       await expect(provider.chat(makeRequest())).rejects.toThrow("HTTP 429");
@@ -199,7 +197,11 @@ describe("OpenAICompatibleProvider", () => {
       fetchSpy.mockResolvedValueOnce(sseResponse(sseData));
 
       const provider = new OpenAICompatibleProvider(testConfig());
-      const chunks: Array<{ delta: string; done: boolean; usage?: { inputTokens: number; outputTokens: number } }> = [];
+      const chunks: Array<{
+        delta: string;
+        done: boolean;
+        usage?: { inputTokens: number; outputTokens: number };
+      }> = [];
 
       for await (const chunk of provider.chatStream(makeRequest({ stream: true }))) {
         chunks.push(chunk);
@@ -213,9 +215,7 @@ describe("OpenAICompatibleProvider", () => {
     });
 
     it("throws on non-200 streaming response", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        new Response("server error", { status: 500 }),
-      );
+      fetchSpy.mockResolvedValueOnce(new Response("server error", { status: 500 }));
 
       const provider = new OpenAICompatibleProvider(testConfig());
       await expect(async () => {
@@ -335,9 +335,7 @@ describe("OpenAICompatibleProvider", () => {
       const provider = new OpenAICompatibleProvider(testConfig());
       await provider.chat(
         makeRequest({
-          messages: [
-            { role: "tool", content: "result data", toolCallId: "call_abc123" },
-          ],
+          messages: [{ role: "tool", content: "result data", toolCallId: "call_abc123" }],
         }),
       );
 

@@ -36,9 +36,7 @@ export class ProviderRegistry {
   }
 
   getHealthy(): ReadonlyArray<IProvider> {
-    return this.list().filter(
-      (p) => p.config.enabled && p.health.status !== "down",
-    );
+    return this.list().filter((p) => p.config.enabled && p.health.status !== "down");
   }
 
   clear(): void {

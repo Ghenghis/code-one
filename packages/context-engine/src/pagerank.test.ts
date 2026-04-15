@@ -22,7 +22,12 @@ describe("computePageRank", () => {
   it("scores sum to approximately 1.0", () => {
     const scores = computePageRank(
       ["a", "b", "c", "d"],
-      [["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"]],
+      [
+        ["a", "b"],
+        ["b", "c"],
+        ["c", "d"],
+        ["d", "a"],
+      ],
     );
     const sum = [...scores.values()].reduce((a, b) => a + b, 0);
     expect(sum).toBeCloseTo(1.0, 2);
@@ -61,13 +66,25 @@ describe("computePageRank", () => {
   });
 
   it("handles self-loops gracefully", () => {
-    const scores = computePageRank(["a", "b"], [["a", "a"], ["a", "b"]]);
+    const scores = computePageRank(
+      ["a", "b"],
+      [
+        ["a", "a"],
+        ["a", "b"],
+      ],
+    );
     expect(scores.get("a")).toBeGreaterThan(0);
     expect(scores.get("b")).toBeGreaterThan(0);
   });
 
   it("ignores edges referencing unknown nodes", () => {
-    const scores = computePageRank(["a", "b"], [["a", "b"], ["x", "b"]]);
+    const scores = computePageRank(
+      ["a", "b"],
+      [
+        ["a", "b"],
+        ["x", "b"],
+      ],
+    );
     expect(scores.size).toBe(2);
     const sum = [...scores.values()].reduce((a, b) => a + b, 0);
     expect(sum).toBeCloseTo(1.0, 2);

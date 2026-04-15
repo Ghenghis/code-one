@@ -76,7 +76,9 @@
   padding: 2px;
   border-radius: 3px;
   opacity: 0;
-  transition: opacity 0.1s, background 0.1s;
+  transition:
+    opacity 0.1s,
+    background 0.1s;
 }
 
 .tab:hover .tab__close,

@@ -12,9 +12,7 @@ function mockKernel(): Kernel {
   return {
     commands: {
       execute: vi.fn().mockResolvedValue({ ok: true }),
-      list: vi.fn().mockReturnValue([
-        { id: "test:cmd", title: "Test Command" },
-      ]),
+      list: vi.fn().mockReturnValue([{ id: "test:cmd", title: "Test Command" }]),
       has: vi.fn(),
       register: vi.fn(),
       unregister: vi.fn(),
@@ -41,7 +39,14 @@ function mockKernel(): Kernel {
     },
     layout: {
       getState: vi.fn().mockReturnValue({
-        root: { kind: "panel", id: "root", panelType: "editor", position: "center", visible: true, weight: 1 },
+        root: {
+          kind: "panel",
+          id: "root",
+          panelType: "editor",
+          position: "center",
+          visible: true,
+          weight: 1,
+        },
         tabGroups: [],
         sidebarCollapsed: { left: false, right: false, bottom: false },
         panelSizes: {},
@@ -168,7 +173,14 @@ describe("IPC Handlers", () => {
 
   describe("event:emit", () => {
     it("delegates to kernel.events.emit", () => {
-      const event = { id: "e1", type: "user:message", timestamp: Date.now(), source: "user", sessionId: "s1", payload: { text: "hi" } };
+      const event = {
+        id: "e1",
+        type: "user:message",
+        timestamp: Date.now(),
+        source: "user",
+        sessionId: "s1",
+        payload: { text: "hi" },
+      };
       handlers["event:emit"]({}, event);
       expect(kernel.events.emit).toHaveBeenCalledWith(event);
     });
@@ -184,15 +196,8 @@ describe("IPC Handlers", () => {
 
   describe("settings:set", () => {
     it("sets a setting value at scope", () => {
-      handlers["settings:set"](
-        {},
-        { key: "editor.fontSize", value: 16, scope: "user" },
-      );
-      expect(kernel.settings.set).toHaveBeenCalledWith(
-        "editor.fontSize",
-        16,
-        "user",
-      );
+      handlers["settings:set"]({}, { key: "editor.fontSize", value: 16, scope: "user" });
+      expect(kernel.settings.set).toHaveBeenCalledWith("editor.fontSize", 16, "user");
     });
   });
 
@@ -215,7 +220,14 @@ describe("IPC Handlers", () => {
   describe("layout:set", () => {
     it("replaces layout state", () => {
       const state = {
-        root: { kind: "panel" as const, id: "r", panelType: "editor", position: "center" as const, visible: true, weight: 1 },
+        root: {
+          kind: "panel" as const,
+          id: "r",
+          panelType: "editor",
+          position: "center" as const,
+          visible: true,
+          weight: 1,
+        },
         tabGroups: [],
         sidebarCollapsed: { left: false, right: false, bottom: false },
         panelSizes: {},
@@ -280,10 +292,7 @@ describe("IPC Handlers", () => {
   describe("event:subscribe", () => {
     it("subscribes to kernel events and returns ack", () => {
       const sender = { send: vi.fn(), isDestroyed: vi.fn().mockReturnValue(false) };
-      const result = handlers["event:subscribe"](
-        { sender },
-        { type: "user:message" },
-      );
+      const result = handlers["event:subscribe"]({ sender }, { type: "user:message" });
       expect(kernel.events.on).toHaveBeenCalledWith("user:message", expect.any(Function));
       expect(result).toHaveProperty("subscribed", true);
       expect(result).toHaveProperty("type", "user:message");
@@ -329,10 +338,9 @@ describe("IPC Handlers", () => {
       (kernel.commands.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("Command not found"),
       );
-      const result = (await handlers["command:execute"](
-        {},
-        { commandId: "bad:cmd" },
-      )) as { error: { code: string; message: string } };
+      const result = (await handlers["command:execute"]({}, { commandId: "bad:cmd" })) as {
+        error: { code: string; message: string };
+      };
       expect(result).toHaveProperty("error");
       expect(result.error).toHaveProperty("code", "IPC_ERROR");
       expect(result.error).toHaveProperty("message", "Command not found");

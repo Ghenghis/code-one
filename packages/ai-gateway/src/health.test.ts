@@ -2,12 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { HealthMonitor } from "./health.js";
 import { ProviderRegistry } from "./registry.js";
 import { BaseProvider } from "./provider.js";
-import type {
-  ChatRequest,
-  ChatResponse,
-  ChatChunk,
-  ProviderConfig,
-} from "@code-one/shared-types";
+import type { ChatRequest, ChatResponse, ChatChunk, ProviderConfig } from "@code-one/shared-types";
 
 // ---------------------------------------------------------------------------
 // Test helpers

@@ -2,7 +2,10 @@ import { describe, it, expect } from "vitest";
 import { RepoMapBuilder } from "./repo-map.js";
 import type { RepoFileEntry, RepoSymbol, RepoDependency } from "@code-one/shared-types";
 
-function fileEntry(path: string, overrides?: Partial<Omit<RepoFileEntry, "pageRank">>): Omit<RepoFileEntry, "pageRank"> {
+function fileEntry(
+  path: string,
+  overrides?: Partial<Omit<RepoFileEntry, "pageRank">>,
+): Omit<RepoFileEntry, "pageRank"> {
   return {
     path,
     language: "typescript",
@@ -58,10 +61,7 @@ describe("RepoMapBuilder", () => {
     it("adds symbols to the index", () => {
       const builder = new RepoMapBuilder("/repo");
       builder.addFile(fileEntry("src/a.ts"));
-      builder.addSymbols("src/a.ts", [
-        symbol("foo", "src/a.ts"),
-        symbol("bar", "src/a.ts"),
-      ]);
+      builder.addSymbols("src/a.ts", [symbol("foo", "src/a.ts"), symbol("bar", "src/a.ts")]);
 
       expect(builder.symbolIndex.size).toBe(2);
     });
@@ -95,11 +95,7 @@ describe("RepoMapBuilder", () => {
 
     it("computes pageRank scores that sum to ~1.0", () => {
       const builder = new RepoMapBuilder("/repo");
-      builder.addFiles([
-        fileEntry("a.ts"),
-        fileEntry("b.ts"),
-        fileEntry("c.ts"),
-      ]);
+      builder.addFiles([fileEntry("a.ts"), fileEntry("b.ts"), fileEntry("c.ts")]);
       builder.addDependencies([
         { from: "a.ts", to: "b.ts", kind: "static" },
         { from: "c.ts", to: "b.ts", kind: "static" },
@@ -112,11 +108,7 @@ describe("RepoMapBuilder", () => {
 
     it("sorts files by pageRank descending", () => {
       const builder = new RepoMapBuilder("/repo");
-      builder.addFiles([
-        fileEntry("a.ts"),
-        fileEntry("b.ts"),
-        fileEntry("c.ts"),
-      ]);
+      builder.addFiles([fileEntry("a.ts"), fileEntry("b.ts"), fileEntry("c.ts")]);
       // b.ts is imported by both a and c → highest rank
       builder.addDependencies([
         { from: "a.ts", to: "b.ts", kind: "static" },
@@ -169,11 +161,7 @@ describe("RepoMapBuilder", () => {
   describe("getTopFiles", () => {
     it("returns top N files by importance", () => {
       const builder = new RepoMapBuilder("/repo");
-      builder.addFiles([
-        fileEntry("a.ts"),
-        fileEntry("b.ts"),
-        fileEntry("c.ts"),
-      ]);
+      builder.addFiles([fileEntry("a.ts"), fileEntry("b.ts"), fileEntry("c.ts")]);
       builder.addDependencies([
         { from: "a.ts", to: "b.ts", kind: "static" },
         { from: "c.ts", to: "b.ts", kind: "static" },
