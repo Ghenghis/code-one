@@ -13,3 +13,22 @@ export type {
   AgentLoopConfig,
   AgentHandlers,
 } from "./agent-loop.js";
+export {
+  createCompletionTaskState,
+  recordTaskStarted,
+  recordTaskFailure,
+  recordVerificationStarted,
+  recordVerificationPassed,
+  recordVerificationFailed,
+  canMarkComplete,
+  evaluateCompletion,
+  canRetry,
+  evaluateEscalation,
+} from "./completion-engine.js";
+export type {
+  TaskStatus,
+  VerificationStatus,
+  CompletionTaskState,
+  CompletionDecision,
+  RetryDecision,
+} from "./completion-engine.js";
