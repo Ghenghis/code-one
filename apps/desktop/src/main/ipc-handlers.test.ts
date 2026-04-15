@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createIPCHandlers } from "./ipc-handlers.js";
 import type { Kernel } from "@code-one/kernel";
 
+const { mockReaddir } = vi.hoisted(() => ({ mockReaddir: vi.fn() }));
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return { ...actual, default: { ...actual, readdir: mockReaddir }, readdir: mockReaddir };
+});
+
 function mockKernel(): Kernel {
   return {
     commands: {
@@ -130,6 +136,7 @@ describe("IPC Handlers", () => {
       "permission:check",
       "fs:read-file",
       "fs:write-file",
+      "fs:list-dir",
       "dialog:open-folder",
       "dialog:open-file",
     ];
@@ -234,6 +241,39 @@ describe("IPC Handlers", () => {
       const result = await handlers["permission:check"]({}, request);
       expect(kernel.permissions.check).toHaveBeenCalledWith(request);
       expect(result).toHaveProperty("decision", "allow");
+    });
+  });
+
+  describe("fs:list-dir", () => {
+    it("returns sorted directory entries with directories first", async () => {
+      mockReaddir.mockResolvedValue([
+        { name: "zebra.ts", isDirectory: () => false },
+        { name: "src", isDirectory: () => true },
+        { name: "alpha.ts", isDirectory: () => false },
+        { name: ".hidden", isDirectory: () => false },
+        { name: "lib", isDirectory: () => true },
+      ]);
+
+      // Re-create handlers so they pick up the mocked readdir
+      const h = createIPCHandlers(kernel);
+      const result = await h["fs:list-dir"]({}, { dirPath: "/test/dir" });
+      const entries = result as { name: string; path: string; isDirectory: boolean }[];
+
+      // Dot-files filtered out
+      expect(entries.find((e) => e.name === ".hidden")).toBeUndefined();
+
+      // Directories first
+      expect(entries[0].isDirectory).toBe(true);
+      expect(entries[1].isDirectory).toBe(true);
+
+      // Sorted alphabetically within groups
+      expect(entries[0].name).toBe("lib");
+      expect(entries[1].name).toBe("src");
+      expect(entries[2].name).toBe("alpha.ts");
+      expect(entries[3].name).toBe("zebra.ts");
+
+      // Paths use forward slashes
+      expect(entries[0].path).toBe("/test/dir/lib");
     });
   });
 

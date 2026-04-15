@@ -81,6 +81,12 @@ const CHANNEL_DESCRIPTORS: IPCChannelDescriptor[] = [
     module: "fs",
   },
   {
+    channel: "fs:list-dir",
+    direction: "renderer-to-main",
+    description: "List directory entries with name, path, and isDirectory flag",
+    module: "fs",
+  },
+  {
     channel: "dialog:open-folder",
     direction: "renderer-to-main",
     description: "Open native folder picker, returns selected path",

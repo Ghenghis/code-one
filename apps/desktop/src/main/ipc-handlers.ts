@@ -125,6 +125,24 @@ export function createIPCHandlers(kernel: Kernel): IPCHandlerMap {
       },
     ),
 
+    "fs:list-dir": safeHandler(
+      async (_event, payload: unknown) => {
+        const { dirPath } = payload as { dirPath: string };
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+        return entries
+          .filter((e) => !e.name.startsWith("."))
+          .map((e) => ({
+            name: e.name,
+            path: `${dirPath}/${e.name}`.replace(/\\/g, "/"),
+            isDirectory: e.isDirectory(),
+          }))
+          .sort((a, b) => {
+            if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
+            return a.name.localeCompare(b.name);
+          });
+      },
+    ),
+
     "dialog:open-folder": safeHandler(
       async () => {
         const result = await dialog.showOpenDialog({
