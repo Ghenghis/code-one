@@ -1,9 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { TabBar } from "./components/TabBar.js";
 import { EditorPane } from "./components/EditorPane.js";
 import { FileTree } from "./components/FileTree.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { WelcomeScreen } from "./components/WelcomeScreen.js";
+import { CommandPalette } from "./components/CommandPalette.js";
+import type { PaletteCommand } from "./components/CommandPalette.js";
 
 export interface TabState {
   filePath: string;
@@ -47,6 +49,7 @@ export function App() {
   const [tabs, setTabs] = useState<TabState[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [workspacePath, setWorkspacePath] = useState<string | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const openWorkspace = useCallback(async () => {
     const folder = await window.codeone.openFolder();
@@ -149,7 +152,32 @@ export function App() {
       e.preventDefault();
       openWorkspace();
     }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "P") {
+      e.preventDefault();
+      setPaletteOpen(true);
+    }
   }, [openFile, saveActiveFile, closeTab, activeIndex, openWorkspace]);
+
+  const paletteCommands: PaletteCommand[] = useMemo(() => [
+    {
+      id: "file.open",
+      title: "Open File",
+      keywords: ["file", "open", "load"],
+      action: () => openFile(),
+    },
+    {
+      id: "folder.open",
+      title: "Open Folder",
+      keywords: ["folder", "workspace", "directory"],
+      action: () => openWorkspace(),
+    },
+    {
+      id: "file.save",
+      title: "Save File",
+      keywords: ["save", "write", "persist"],
+      action: () => saveActiveFile(),
+    },
+  ], [openFile, openWorkspace, saveActiveFile]);
 
   const activeTab = activeIndex >= 0 ? tabs[activeIndex] : null;
 
@@ -214,6 +242,13 @@ export function App() {
         tab={activeTab}
         tabCount={tabs.length}
       />
+
+      {paletteOpen && (
+        <CommandPalette
+          commands={paletteCommands}
+          onClose={() => setPaletteOpen(false)}
+        />
+      )}
     </div>
   );
 }
