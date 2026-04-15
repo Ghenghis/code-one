@@ -7,17 +7,28 @@ import type { PaletteCommand } from "./CommandPalette.js";
 function makeCommands(): PaletteCommand[] {
   return [
     { id: "file.open", title: "Open File", keywords: ["file", "open", "load"], action: vi.fn() },
-    { id: "folder.open", title: "Open Folder", keywords: ["folder", "workspace", "directory"], action: vi.fn() },
-    { id: "file.save", title: "Save File", keywords: ["save", "write", "persist"], action: vi.fn() },
+    {
+      id: "folder.open",
+      title: "Open Folder",
+      keywords: ["folder", "workspace", "directory"],
+      action: vi.fn(),
+    },
+    {
+      id: "file.save",
+      title: "Save File",
+      keywords: ["save", "write", "persist"],
+      action: vi.fn(),
+    },
   ];
 }
 
 function filterCommands(commands: PaletteCommand[], query: string): PaletteCommand[] {
   if (query.length === 0) return commands;
   const q = query.toLowerCase();
-  return commands.filter((cmd) =>
-    cmd.title.toLowerCase().includes(q) ||
-    cmd.keywords.some((kw) => kw.toLowerCase().includes(q)),
+  return commands.filter(
+    (cmd) =>
+      cmd.title.toLowerCase().includes(q) ||
+      cmd.keywords.some((kw) => kw.toLowerCase().includes(q)),
   );
 }
 

@@ -19,15 +19,16 @@ export function CommandPalette({ commands, onClose }: CommandPaletteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.length === 0
-    ? commands
-    : commands.filter((cmd) => {
-        const q = query.toLowerCase();
-        return (
-          cmd.title.toLowerCase().includes(q) ||
-          cmd.keywords.some((kw) => kw.toLowerCase().includes(q))
-        );
-      });
+  const filtered =
+    query.length === 0
+      ? commands
+      : commands.filter((cmd) => {
+          const q = query.toLowerCase();
+          return (
+            cmd.title.toLowerCase().includes(q) ||
+            cmd.keywords.some((kw) => kw.toLowerCase().includes(q))
+          );
+        });
 
   // Reset selection when filter changes
   useEffect(() => {
@@ -47,42 +48,44 @@ export function CommandPalette({ commands, onClose }: CommandPaletteProps) {
     item?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
-  const execute = useCallback((cmd: PaletteCommand) => {
-    onClose();
-    cmd.action();
-  }, [onClose]);
+  const execute = useCallback(
+    (cmd: PaletteCommand) => {
+      onClose();
+      cmd.action();
+    },
+    [onClose],
+  );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case "Escape":
-        e.preventDefault();
-        e.stopPropagation();
-        onClose();
-        break;
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedIndex((prev) => Math.max(prev - 1, 0));
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (filtered[selectedIndex]) {
-          execute(filtered[selectedIndex]);
-        }
-        break;
-    }
-  }, [filtered, selectedIndex, execute, onClose]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "Escape":
+          e.preventDefault();
+          e.stopPropagation();
+          onClose();
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
+          break;
+        case "Enter":
+          e.preventDefault();
+          if (filtered[selectedIndex]) {
+            execute(filtered[selectedIndex]);
+          }
+          break;
+      }
+    },
+    [filtered, selectedIndex, execute, onClose],
+  );
 
   return (
     <div className="palette-overlay" onClick={onClose}>
-      <div
-        className="palette"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={handleKeyDown}
-      >
+      <div className="palette" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <input
           ref={inputRef}
           className="palette__input"
