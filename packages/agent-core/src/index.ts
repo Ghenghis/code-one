@@ -7,12 +7,7 @@ export type { PendingApproval } from "./approval-gate.js";
 export { CheckpointManager } from "./checkpoint.js";
 export type { CheckpointData } from "./checkpoint.js";
 export { AgentLoop } from "./agent-loop.js";
-export type {
-  AgentPhase,
-  AgentState,
-  AgentLoopConfig,
-  AgentHandlers,
-} from "./agent-loop.js";
+export type { AgentPhase, AgentState, AgentLoopConfig, AgentHandlers } from "./agent-loop.js";
 export {
   createCompletionTaskState,
   recordTaskStarted,

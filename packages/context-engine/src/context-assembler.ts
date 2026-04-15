@@ -1,20 +1,16 @@
-import type {
-  RepositoryMap,
-  RepoFileEntry,
-  MemoryEntry,
-} from "@code-one/shared-types";
+import type { RepositoryMap, RepoFileEntry, MemoryEntry } from "@code-one/shared-types";
 
 // ---------------------------------------------------------------------------
 // Context item types
 // ---------------------------------------------------------------------------
 
 export type ContextItemKind =
-  | "file"          // Full or partial file content
-  | "symbol"        // Symbol definition
-  | "memory"        // Memory entry
-  | "diagnostic"    // LSP diagnostic
-  | "user-message"  // User's chat message
-  | "system";       // System instruction
+  | "file" // Full or partial file content
+  | "symbol" // Symbol definition
+  | "memory" // Memory entry
+  | "diagnostic" // LSP diagnostic
+  | "user-message" // User's chat message
+  | "system"; // System instruction
 
 export interface ContextItem {
   kind: ContextItemKind;
@@ -169,10 +165,7 @@ export class ContextAssembler {
    * Uses PageRank scores as relevance. Generates a summary string for
    * each file (path, line count, top symbols).
    */
-  contextFromRepoMap(
-    repoMap: RepositoryMap,
-    fileContents?: Map<string, string>,
-  ): ContextItem[] {
+  contextFromRepoMap(repoMap: RepositoryMap, fileContents?: Map<string, string>): ContextItem[] {
     const items: ContextItem[] = [];
 
     for (const file of repoMap.files) {
@@ -211,9 +204,7 @@ export class ContextAssembler {
    */
   contextFromMemory(entries: MemoryEntry[]): ContextItem[] {
     return entries.map((e) => {
-      const content = typeof e.value === "string"
-        ? e.value
-        : JSON.stringify(e.value);
+      const content = typeof e.value === "string" ? e.value : JSON.stringify(e.value);
 
       // Recency boost: newer entries score higher
       const ageMs = Date.now() - e.updatedAt;
@@ -242,13 +233,15 @@ export class ContextAssembler {
       .map((d) => `${d.file}:${d.line} [${d.severity}] ${d.message}`)
       .join("\n");
 
-    return [{
-      kind: "diagnostic",
-      source: "diagnostics",
-      content,
-      relevance: 0.9, // diagnostics are high priority
-      tokenEstimate: estimateTokens(content),
-    }];
+    return [
+      {
+        kind: "diagnostic",
+        source: "diagnostics",
+        content,
+        relevance: 0.9, // diagnostics are high priority
+        tokenEstimate: estimateTokens(content),
+      },
+    ];
   }
 
   // -- private ---------------------------------------------------------------

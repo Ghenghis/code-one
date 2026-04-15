@@ -51,16 +51,18 @@ function TreeItem({
         </span>
         <span className="file-tree__name">{node.name}</span>
       </div>
-      {node.isDirectory && node.expanded && node.children?.map((child) => (
-        <TreeItem
-          key={child.path}
-          node={child}
-          depth={depth + 1}
-          activeFilePath={activeFilePath}
-          onFileSelect={onFileSelect}
-          onToggle={onToggle}
-        />
-      ))}
+      {node.isDirectory &&
+        node.expanded &&
+        node.children?.map((child) => (
+          <TreeItem
+            key={child.path}
+            node={child}
+            depth={depth + 1}
+            activeFilePath={activeFilePath}
+            onFileSelect={onFileSelect}
+            onToggle={onToggle}
+          />
+        ))}
     </>
   );
 }
@@ -87,33 +89,37 @@ export function FileTree({ workspacePath, activeFilePath, onFileSelect }: FileTr
     loadDirectory(workspacePath).then(setNodes);
   }, [workspacePath, loadDirectory]);
 
-  const toggleNode = useCallback(async (target: TreeNode) => {
-    if (!target.isDirectory) return;
+  const toggleNode = useCallback(
+    async (target: TreeNode) => {
+      if (!target.isDirectory) return;
 
-    const toggle = async (items: TreeNode[]): Promise<TreeNode[]> => {
-      const result: TreeNode[] = [];
-      for (const node of items) {
-        if (node.path === target.path) {
-          if (!node.expanded) {
-            // Expand: load children if not loaded
-            const children = node.children && node.children.length > 0
-              ? node.children
-              : await loadDirectory(node.path);
-            result.push({ ...node, expanded: true, children });
+      const toggle = async (items: TreeNode[]): Promise<TreeNode[]> => {
+        const result: TreeNode[] = [];
+        for (const node of items) {
+          if (node.path === target.path) {
+            if (!node.expanded) {
+              // Expand: load children if not loaded
+              const children =
+                node.children && node.children.length > 0
+                  ? node.children
+                  : await loadDirectory(node.path);
+              result.push({ ...node, expanded: true, children });
+            } else {
+              result.push({ ...node, expanded: false });
+            }
+          } else if (node.isDirectory && node.children) {
+            result.push({ ...node, children: await toggle(node.children) });
           } else {
-            result.push({ ...node, expanded: false });
+            result.push(node);
           }
-        } else if (node.isDirectory && node.children) {
-          result.push({ ...node, children: await toggle(node.children) });
-        } else {
-          result.push(node);
         }
-      }
-      return result;
-    };
+        return result;
+      };
 
-    setNodes(await toggle(nodes));
-  }, [nodes, loadDirectory]);
+      setNodes(await toggle(nodes));
+    },
+    [nodes, loadDirectory],
+  );
 
   if (nodes.length === 0) {
     return <div className="file-tree__empty">No files found</div>;

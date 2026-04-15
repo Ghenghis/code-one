@@ -7,7 +7,15 @@ import type { CheckpointData } from "./checkpoint.js";
 // Agent loop types
 // ---------------------------------------------------------------------------
 
-export type AgentPhase = "idle" | "planning" | "acting" | "observing" | "deciding" | "paused" | "completed" | "failed";
+export type AgentPhase =
+  | "idle"
+  | "planning"
+  | "acting"
+  | "observing"
+  | "deciding"
+  | "paused"
+  | "completed"
+  | "failed";
 
 export interface AgentState {
   sessionId: string;
@@ -32,7 +40,11 @@ export interface AgentHandlers {
   /** Plan the next action(s) given current state. */
   plan(state: AgentState): Promise<{ action: string; args: Record<string, unknown> } | null>;
   /** Execute the planned action. */
-  act(state: AgentState, action: string, args: Record<string, unknown>): Promise<{ result: unknown; success: boolean }>;
+  act(
+    state: AgentState,
+    action: string,
+    args: Record<string, unknown>,
+  ): Promise<{ result: unknown; success: boolean }>;
   /** Process the action result, update working memory. */
   observe(state: AgentState, result: unknown, success: boolean): Promise<void>;
   /** Decide whether to continue, stop, or change strategy. */
@@ -115,11 +127,7 @@ export class AgentLoop {
         }),
       );
 
-      const { result, success } = await this._handlers.act(
-        this._state,
-        plan.action,
-        plan.args,
-      );
+      const { result, success } = await this._handlers.act(this._state, plan.action, plan.args);
 
       // Phase 3: Observe
       this._state.phase = "observing";
@@ -161,7 +169,11 @@ export class AgentLoop {
 
   /** Pause the loop (sets phase to paused). */
   pause(): void {
-    if (this._state.phase !== "idle" && this._state.phase !== "completed" && this._state.phase !== "failed") {
+    if (
+      this._state.phase !== "idle" &&
+      this._state.phase !== "completed" &&
+      this._state.phase !== "failed"
+    ) {
       this._state.phase = "paused";
       this.checkpoint("interrupt");
     }

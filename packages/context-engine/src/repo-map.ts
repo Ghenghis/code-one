@@ -72,9 +72,7 @@ export class RepoMapBuilder {
   removeFile(filePath: string): void {
     this._files.delete(filePath);
     this._symbolIndex.removeFile(filePath);
-    this._dependencies = this._dependencies.filter(
-      (d) => d.from !== filePath && d.to !== filePath,
-    );
+    this._dependencies = this._dependencies.filter((d) => d.from !== filePath && d.to !== filePath);
     this._activeFiles.delete(filePath);
   }
 

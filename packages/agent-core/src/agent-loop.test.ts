@@ -24,10 +24,7 @@ function makeHandlers(overrides?: Partial<AgentHandlers>): AgentHandlers {
 describe("AgentLoop", () => {
   describe("initialization", () => {
     it("starts in idle phase", () => {
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        makeHandlers(),
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, makeHandlers());
       expect(loop.state.phase).toBe("idle");
       expect(loop.state.stepCount).toBe(0);
       expect(loop.state.modeId).toBe("code");
@@ -40,10 +37,7 @@ describe("AgentLoop", () => {
         plan: vi.fn(async () => null),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       const result = await loop.run();
       expect(result.phase).toBe("completed");
@@ -52,10 +46,7 @@ describe("AgentLoop", () => {
 
     it("runs plan-act-observe-decide cycle", async () => {
       const handlers = makeHandlers();
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       const result = await loop.run();
 
@@ -77,10 +68,7 @@ describe("AgentLoop", () => {
         }),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       const result = await loop.run();
       expect(result.phase).toBe("completed");
@@ -93,10 +81,7 @@ describe("AgentLoop", () => {
         decide: vi.fn(async () => "fail" as const),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       const result = await loop.run();
       expect(result.phase).toBe("failed");
@@ -108,10 +93,7 @@ describe("AgentLoop", () => {
         decide: vi.fn(async () => "pause" as const),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       const result = await loop.run();
       expect(result.phase).toBe("paused");
@@ -123,10 +105,7 @@ describe("AgentLoop", () => {
         decide: vi.fn(async () => "continue" as const),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code", maxSteps: 3 },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code", maxSteps: 3 }, handlers);
 
       const result = await loop.run();
       expect(result.phase).toBe("failed");
@@ -136,11 +115,7 @@ describe("AgentLoop", () => {
     it("records events during execution", async () => {
       const events = new EventStream();
       const handlers = makeHandlers();
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-        events,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers, events);
 
       await loop.run();
 
@@ -162,10 +137,7 @@ describe("AgentLoop", () => {
         }),
       });
 
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        handlers,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, handlers);
 
       // First run — pauses after step 1
       const paused = await loop.run();
@@ -179,10 +151,7 @@ describe("AgentLoop", () => {
     });
 
     it("throws when resuming from non-paused state", async () => {
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        makeHandlers(),
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, makeHandlers());
 
       await expect(loop.resume()).rejects.toThrow("Cannot resume");
     });
@@ -257,11 +226,7 @@ describe("AgentLoop", () => {
   describe("switchMode", () => {
     it("changes mode and emits event", () => {
       const events = new EventStream();
-      const loop = new AgentLoop(
-        { sessionId: "s1", modeId: "code" },
-        makeHandlers(),
-        events,
-      );
+      const loop = new AgentLoop({ sessionId: "s1", modeId: "code" }, makeHandlers(), events);
 
       loop.switchMode("debug");
 

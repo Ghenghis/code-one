@@ -10,18 +10,18 @@
 
 ### 1.1 Summary Table
 
-| Package | Milestone | Src Files | Test Files | Tests | Status | Completeness |
-|---------|-----------|-----------|------------|-------|--------|-------------|
-| `shared-types` | M0-M5 | 12 | 0 (types) | — | Done | 100% for current tiers |
-| `kernel` | M1 | 8 | 8 | 90 | Done | 100% |
-| `desktop` (app) | M2 | 6 | 3 | 19 | Done | 95% |
-| `ai-gateway` | M3 | 8 | 7 | 111 | Done | 100% |
-| `context-engine` | M4 | 6 | 5 | 66 | Partial | ~60% |
-| `agent-core` | M5 | 6 | 5 | 80 | Partial | ~50% |
-| `test-harness` | — | 1 | 1 | 6 | Done | 100% |
-| 11 stub packages | M5-M8/GUI | 1 each | 0 | 0 | Stub | 0% |
-| `agent-runner` (app) | M5 | 1 | 0 | 0 | Stub | 0% |
-| **TOTAL** | | **~60** | **29** | **372** | | |
+| Package              | Milestone | Src Files | Test Files | Tests   | Status  | Completeness           |
+| -------------------- | --------- | --------- | ---------- | ------- | ------- | ---------------------- |
+| `shared-types`       | M0-M5     | 12        | 0 (types)  | —       | Done    | 100% for current tiers |
+| `kernel`             | M1        | 8         | 8          | 90      | Done    | 100%                   |
+| `desktop` (app)      | M2        | 6         | 3          | 19      | Done    | 95%                    |
+| `ai-gateway`         | M3        | 8         | 7          | 111     | Done    | 100%                   |
+| `context-engine`     | M4        | 6         | 5          | 66      | Partial | ~60%                   |
+| `agent-core`         | M5        | 6         | 5          | 80      | Partial | ~50%                   |
+| `test-harness`       | —         | 1         | 1          | 6       | Done    | 100%                   |
+| 11 stub packages     | M5-M8/GUI | 1 each    | 0          | 0       | Stub    | 0%                     |
+| `agent-runner` (app) | M5        | 1         | 0          | 0       | Stub    | 0%                     |
+| **TOTAL**            |           | **~60**   | **29**     | **372** |         |                        |
 
 All 372 tests pass. Zero failures.
 
@@ -47,6 +47,7 @@ No missing features. No test gaps. Solid foundation.
 #### Context Engine (M4) — PARTIAL (~60%)
 
 Implemented:
+
 - SymbolIndex (in-memory, manual population)
 - PageRank (iterative, damping, dangling nodes)
 - RepoMapBuilder (files, symbols, deps, active-file boost)
@@ -62,17 +63,20 @@ Missing:
 | LSP diagnostics ingestion | Partial (helper exists, no LSP integration) | Low |
 
 Exit criteria not met:
+
 - Top-5 recall benchmark requires tree-sitter + embeddings
 - 10k-file performance benchmark not run
 - `estimateTokens()` uses rough `length/4` — no real compression metric
 
 Performance concerns:
+
 - `SymbolIndex.removeFile()` does O(n) linear scan — will degrade at 10k+ files
 - `InMemoryStore.search()` is naive substring — no relevance scoring
 
 #### Agent Core (M5) — PARTIAL (~50%)
 
 Implemented:
+
 - EventStream (append-only, typed subscriptions, causal chain, session queries)
 - ToolRegistryImpl (CRUD, mode-based allow/deny, glob patterns)
 - ApprovalGate (risk/trust matrix, auto-approve, pending/approve/deny flow)
@@ -91,23 +95,25 @@ Missing:
 | `agent-runner` app | Stub | No standalone agent process |
 
 Exit criteria not met:
+
 - Session replay: stream exists but no replay executor
 - Subagent isolation: no implementation
 - Task graph concurrent nodes: package is stub
 
 Edge cases:
+
 - `createEvent()` uses module-level `_counter` — not safe across concurrent processes
 - `AgentLoop.run()` doesn't catch handler exceptions — will leave loop in stale phase
 - `ApprovalGate` has no timeout for pending approvals
 
 ### 1.3 Shared-Types Contracts Without Implementation
 
-| Type File | Unimplemented Contracts | Needed By |
-|-----------|------------------------|-----------|
-| `graph.ts` | `TaskGraph`, `GraphNode`, `GraphEdge`, `GraphState`, `StateReducer`, `RetryPolicy` | `task-graph` (M5) |
-| `events.ts` | `EditProposalEvent`, `SubagentSpawnEvent`, `SubagentResultEvent`, `MemoryWriteEvent` | No code emits/consumes these |
-| `modes.ts` | `ToolCall`, `ToolResult` | `agent-core` uses own internal types |
-| `providers.ts` | `FallbackChain` (full struct), `BudgetConfig` | `ai-gateway` uses own internal types |
+| Type File      | Unimplemented Contracts                                                              | Needed By                            |
+| -------------- | ------------------------------------------------------------------------------------ | ------------------------------------ |
+| `graph.ts`     | `TaskGraph`, `GraphNode`, `GraphEdge`, `GraphState`, `StateReducer`, `RetryPolicy`   | `task-graph` (M5)                    |
+| `events.ts`    | `EditProposalEvent`, `SubagentSpawnEvent`, `SubagentResultEvent`, `MemoryWriteEvent` | No code emits/consumes these         |
+| `modes.ts`     | `ToolCall`, `ToolResult`                                                             | `agent-core` uses own internal types |
+| `providers.ts` | `FallbackChain` (full struct), `BudgetConfig`                                        | `ai-gateway` uses own internal types |
 
 ### 1.4 Cross-Cutting Gaps
 
@@ -124,66 +130,66 @@ Edge cases:
 
 Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
-| Feature | VS Code + Copilot | Cursor | Zed | JetBrains + Junie | Windsurf | **Code One** |
-|---------|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Agent Loop** | | | | | | |
-| Plan-Act-Observe-Decide cycle | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Multi-step autonomous tasks | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Pause / resume / interrupt | ✅ | ✅ | ❌ | 🔨 | 🔨 | ✅ |
-| Visible plan display | ✅ | ✅ | ❌ | ✅ | ✅ | 🔨 |
-| **Checkpoints** | | | | | | |
-| State snapshot / rollback | ✅ | ✅ | ❌ | 🔨 | 🔨 | ✅ |
-| Session replay from events | 🔨 | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Tool System** | | | | | | |
-| Tool registry + schemas | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Mode-based tool permissions | 🔨 | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Approval gates | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Diff review UX | ✅ | ✅ | 🔨 | ✅ | ✅ | 🔨 |
-| **MCP** | | | | | | |
-| MCP client | ✅ | ✅ | ❌ | 🔨 | ✅ | ❌ |
-| MCP-configured tools | ✅ | ✅ | ❌ | 🔨 | ✅ | ❌ |
-| **Subagents** | | | | | | |
-| Spawn child agents | ✅ | ✅ | ❌ | 🔨 | ❌ | 🔨 |
-| Subagent isolation | 🔨 | 🔨 | ❌ | ❌ | ❌ | 🔨 |
-| **Memory** | | | | | | |
-| Session memory | ✅ | ✅ | ❌ | 🔨 | ✅ | ✅ |
-| Cross-session memory | ✅ | ✅ | ❌ | 🔨 | 🔨 | 🔨 |
-| Semantic search | 🔨 | 🔨 | ❌ | ❌ | ❌ | 🔨 |
-| **Context** | | | | | | |
-| Codebase indexing | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| File importance ranking | 🔨 | 🔨 | ❌ | 🔨 | 🔨 | ✅ |
-| Token-budget assembly | 🔨 | ✅ | ❌ | 🔨 | 🔨 | ✅ |
-| RAG / embeddings | ✅ | ✅ | ❌ | 🔨 | 🔨 | 🔨 |
-| **AI Provider** | | | | | | |
-| Multi-provider support | ❌ | ✅ | ✅ | 🔨 | 🔨 | ✅ |
-| Provider fallback chains | ❌ | 🔨 | ❌ | ❌ | ❌ | ✅ |
-| Health monitoring | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Cost tracking / budgets | ❌ | 🔨 | ❌ | ❌ | ❌ | ✅ |
-| Local model support | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Background Agents** | | | | | | |
-| Cloud-sandboxed agents | 🔨 | ✅ | ❌ | ✅ | 🔨 | ❌ |
-| Long-running job monitoring | 🔨 | ✅ | ❌ | ✅ | 🔨 | 🔨 |
-| **Task Graph** | | | | | | |
-| DAG-based orchestration | ❌ | ❌ | ❌ | ❌ | ❌ | 🔨 |
-| Concurrent node execution | ❌ | ❌ | ❌ | ❌ | ❌ | 🔨 |
-| State reducers | ❌ | ❌ | ❌ | ❌ | ❌ | 🔨 |
-| **Terminal** | | | | | | |
-| Integrated terminal | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Agent terminal execution | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| **Remote** | | | | | | |
-| SSH / SFTP | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Container environments | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Git integration | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Editor** | | | | | | |
-| Code editing / syntax | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Multi-file diff viz | 🔨 | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Skills / Plugins** | | | | | | |
-| Plugin system | ✅ | 🔨 | 🔨 | ✅ | ❌ | ❌ |
-| Skill sandboxing | 🔨 | ❌ | ❌ | ✅ | ❌ | 🔨 |
-| **Model Lab** | | | | | | |
-| Model benchmarking | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Fine-tune job runner | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Hardware profiling | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Feature                       | VS Code + Copilot | Cursor | Zed | JetBrains + Junie | Windsurf | **Code One** |
+| ----------------------------- | :---------------: | :----: | :-: | :---------------: | :------: | :----------: |
+| **Agent Loop**                |                   |        |     |                   |          |              |
+| Plan-Act-Observe-Decide cycle |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      ✅      |
+| Multi-step autonomous tasks   |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      ✅      |
+| Pause / resume / interrupt    |        ✅         |   ✅   | ❌  |        🔨         |    🔨    |      ✅      |
+| Visible plan display          |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      🔨      |
+| **Checkpoints**               |                   |        |     |                   |          |              |
+| State snapshot / rollback     |        ✅         |   ✅   | ❌  |        🔨         |    🔨    |      ✅      |
+| Session replay from events    |        🔨         |   ❌   | ❌  |        ❌         |    ❌    |      ✅      |
+| **Tool System**               |                   |        |     |                   |          |              |
+| Tool registry + schemas       |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      ✅      |
+| Mode-based tool permissions   |        🔨         |   ❌   | ❌  |        ❌         |    ❌    |      ✅      |
+| Approval gates                |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      ✅      |
+| Diff review UX                |        ✅         |   ✅   | 🔨  |        ✅         |    ✅    |      🔨      |
+| **MCP**                       |                   |        |     |                   |          |              |
+| MCP client                    |        ✅         |   ✅   | ❌  |        🔨         |    ✅    |      ❌      |
+| MCP-configured tools          |        ✅         |   ✅   | ❌  |        🔨         |    ✅    |      ❌      |
+| **Subagents**                 |                   |        |     |                   |          |              |
+| Spawn child agents            |        ✅         |   ✅   | ❌  |        🔨         |    ❌    |      🔨      |
+| Subagent isolation            |        🔨         |   🔨   | ❌  |        ❌         |    ❌    |      🔨      |
+| **Memory**                    |                   |        |     |                   |          |              |
+| Session memory                |        ✅         |   ✅   | ❌  |        🔨         |    ✅    |      ✅      |
+| Cross-session memory          |        ✅         |   ✅   | ❌  |        🔨         |    🔨    |      🔨      |
+| Semantic search               |        🔨         |   🔨   | ❌  |        ❌         |    ❌    |      🔨      |
+| **Context**                   |                   |        |     |                   |          |              |
+| Codebase indexing             |        ✅         |   ✅   | ✅  |        ✅         |    ✅    |      ✅      |
+| File importance ranking       |        🔨         |   🔨   | ❌  |        🔨         |    🔨    |      ✅      |
+| Token-budget assembly         |        🔨         |   ✅   | ❌  |        🔨         |    🔨    |      ✅      |
+| RAG / embeddings              |        ✅         |   ✅   | ❌  |        🔨         |    🔨    |      🔨      |
+| **AI Provider**               |                   |        |     |                   |          |              |
+| Multi-provider support        |        ❌         |   ✅   | ✅  |        🔨         |    🔨    |      ✅      |
+| Provider fallback chains      |        ❌         |   🔨   | ❌  |        ❌         |    ❌    |      ✅      |
+| Health monitoring             |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      ✅      |
+| Cost tracking / budgets       |        ❌         |   🔨   | ❌  |        ❌         |    ❌    |      ✅      |
+| Local model support           |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      ✅      |
+| **Background Agents**         |                   |        |     |                   |          |              |
+| Cloud-sandboxed agents        |        🔨         |   ✅   | ❌  |        ✅         |    🔨    |      ❌      |
+| Long-running job monitoring   |        🔨         |   ✅   | ❌  |        ✅         |    🔨    |      🔨      |
+| **Task Graph**                |                   |        |     |                   |          |              |
+| DAG-based orchestration       |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      🔨      |
+| Concurrent node execution     |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      🔨      |
+| State reducers                |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      🔨      |
+| **Terminal**                  |                   |        |     |                   |          |              |
+| Integrated terminal           |        ✅         |   ✅   | ✅  |        ✅         |    ✅    |      ❌      |
+| Agent terminal execution      |        ✅         |   ✅   | ❌  |        ✅         |    ✅    |      ❌      |
+| **Remote**                    |                   |        |     |                   |          |              |
+| SSH / SFTP                    |        ✅         |   ❌   | ✅  |        ✅         |    ❌    |      ❌      |
+| Container environments        |        ✅         |   ❌   | ✅  |        ✅         |    ❌    |      ❌      |
+| Git integration               |        ✅         |   ✅   | ✅  |        ✅         |    ✅    |      ❌      |
+| **Editor**                    |                   |        |     |                   |          |              |
+| Code editing / syntax         |        ✅         |   ✅   | ✅  |        ✅         |    ✅    |      ❌      |
+| Multi-file diff viz           |        🔨         |   ✅   | ✅  |        ✅         |    ✅    |      ❌      |
+| **Skills / Plugins**          |                   |        |     |                   |          |              |
+| Plugin system                 |        ✅         |   🔨   | 🔨  |        ✅         |    ❌    |      ❌      |
+| Skill sandboxing              |        🔨         |   ❌   | ❌  |        ✅         |    ❌    |      🔨      |
+| **Model Lab**                 |                   |        |     |                   |          |              |
+| Model benchmarking            |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      ❌      |
+| Fine-tune job runner          |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      ❌      |
+| Hardware profiling            |        ❌         |   ❌   | ❌  |        ❌         |    ❌    |      ❌      |
 
 ### 2.2 Code One Unique Differentiators
 
@@ -201,15 +207,15 @@ Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
 ### 2.3 Critical Competitive Gaps (Priority Order)
 
-| # | Gap | Why It Matters | Competitors With It |
-|---|-----|---------------|-------------------|
-| 1 | MCP client | Ecosystem access — table stakes for 2026 | VS Code, Cursor, Windsurf |
-| 2 | Terminal + agent execution | Agents can't run real commands | All except Zed |
-| 3 | Task graph executor | Code One's biggest differentiator, still a stub | None (unique to Code One) |
-| 4 | Git integration | Baseline competence for any IDE | All competitors |
-| 5 | SQLite persistence | Memory/events/checkpoints are volatile | Cursor, Copilot (persistent memory) |
-| 6 | Subagent spawner | Multi-agent orchestration edge | VS Code, Cursor |
-| 7 | Background agent runner | Parity with Cursor/Junie cloud agents | Cursor, JetBrains |
+| #   | Gap                        | Why It Matters                                  | Competitors With It                 |
+| --- | -------------------------- | ----------------------------------------------- | ----------------------------------- |
+| 1   | MCP client                 | Ecosystem access — table stakes for 2026        | VS Code, Cursor, Windsurf           |
+| 2   | Terminal + agent execution | Agents can't run real commands                  | All except Zed                      |
+| 3   | Task graph executor        | Code One's biggest differentiator, still a stub | None (unique to Code One)           |
+| 4   | Git integration            | Baseline competence for any IDE                 | All competitors                     |
+| 5   | SQLite persistence         | Memory/events/checkpoints are volatile          | Cursor, Copilot (persistent memory) |
+| 6   | Subagent spawner           | Multi-agent orchestration edge                  | VS Code, Cursor                     |
+| 7   | Background agent runner    | Parity with Cursor/Junie cloud agents           | Cursor, JetBrains                   |
 
 ---
 
@@ -237,38 +243,38 @@ Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
 ### 3.2 Surface Map
 
-| Surface | Component | Package | Data Source (IPC) |
-|---------|-----------|---------|-------------------|
-| **Left Rail** | | | |
-| File explorer | `<FileTree>` | `workspace` | kernel:settings, fs operations |
-| Search panel | `<GlobalSearch>` | `workspace` | kernel:command |
-| Git panel | `<GitPanel>` | `git-tools` | git-tools IPC |
-| Extensions | `<SkillBrowser>` | `skills` | skills IPC |
-| **Center** | | | |
-| Code editor tabs | `<EditorTabs>` | `editor` | Monaco, kernel:layout |
-| Chat panel | `<ChatPanel>` | `ui` | agent-core IPC, ai-gateway IPC |
-| Diff reviewer | `<DiffReview>` | `editor` | agent-core:EditProposalEvent |
-| Settings UI | `<SettingsEditor>` | `ui` | kernel:settings |
-| Welcome/onboarding | `<Welcome>` | `ui` | kernel:settings |
-| **Right Rail** | | | |
-| Agent activity | `<AgentPanel>` | `ui` | agent-core:EventStream |
-| Context inspector | `<ContextInspector>` | `ui` | context-engine IPC |
-| Approval queue | `<ApprovalQueue>` | `ui` | agent-core:ApprovalGate |
-| Memory browser | `<MemoryBrowser>` | `ui` | context-engine:MemoryStore |
-| Cost dashboard | `<CostDashboard>` | `ui` | ai-gateway:TokenTracker |
-| **Bottom** | | | |
-| Terminal | `<Terminal>` | `terminal` | node-pty via IPC |
-| Diagnostics | `<DiagnosticsPanel>` | `ui` | context-engine:diagnostics |
-| Output log | `<OutputLog>` | `ui` | kernel:EventBus |
-| Checkpoint timeline | `<CheckpointTimeline>` | `ui` | agent-core:CheckpointManager |
-| **Status Bar** | | | |
-| Branch indicator | `<BranchStatus>` | `git-tools` | git-tools IPC |
-| Diagnostics count | `<DiagCount>` | `ui` | context-engine |
-| Agent mode | `<ModeIndicator>` | `ui` | agent-core:mode |
-| Provider health | `<ProviderHealth>` | `ui` | ai-gateway:HealthMonitor |
-| Cost ticker | `<CostTicker>` | `ui` | ai-gateway:TokenTracker |
-| **Command Palette** | | | |
-| Fuzzy command search | `<CommandPalette>` | `ui` | kernel:CommandBus |
+| Surface              | Component              | Package     | Data Source (IPC)              |
+| -------------------- | ---------------------- | ----------- | ------------------------------ |
+| **Left Rail**        |                        |             |                                |
+| File explorer        | `<FileTree>`           | `workspace` | kernel:settings, fs operations |
+| Search panel         | `<GlobalSearch>`       | `workspace` | kernel:command                 |
+| Git panel            | `<GitPanel>`           | `git-tools` | git-tools IPC                  |
+| Extensions           | `<SkillBrowser>`       | `skills`    | skills IPC                     |
+| **Center**           |                        |             |                                |
+| Code editor tabs     | `<EditorTabs>`         | `editor`    | Monaco, kernel:layout          |
+| Chat panel           | `<ChatPanel>`          | `ui`        | agent-core IPC, ai-gateway IPC |
+| Diff reviewer        | `<DiffReview>`         | `editor`    | agent-core:EditProposalEvent   |
+| Settings UI          | `<SettingsEditor>`     | `ui`        | kernel:settings                |
+| Welcome/onboarding   | `<Welcome>`            | `ui`        | kernel:settings                |
+| **Right Rail**       |                        |             |                                |
+| Agent activity       | `<AgentPanel>`         | `ui`        | agent-core:EventStream         |
+| Context inspector    | `<ContextInspector>`   | `ui`        | context-engine IPC             |
+| Approval queue       | `<ApprovalQueue>`      | `ui`        | agent-core:ApprovalGate        |
+| Memory browser       | `<MemoryBrowser>`      | `ui`        | context-engine:MemoryStore     |
+| Cost dashboard       | `<CostDashboard>`      | `ui`        | ai-gateway:TokenTracker        |
+| **Bottom**           |                        |             |                                |
+| Terminal             | `<Terminal>`           | `terminal`  | node-pty via IPC               |
+| Diagnostics          | `<DiagnosticsPanel>`   | `ui`        | context-engine:diagnostics     |
+| Output log           | `<OutputLog>`          | `ui`        | kernel:EventBus                |
+| Checkpoint timeline  | `<CheckpointTimeline>` | `ui`        | agent-core:CheckpointManager   |
+| **Status Bar**       |                        |             |                                |
+| Branch indicator     | `<BranchStatus>`       | `git-tools` | git-tools IPC                  |
+| Diagnostics count    | `<DiagCount>`          | `ui`        | context-engine                 |
+| Agent mode           | `<ModeIndicator>`      | `ui`        | agent-core:mode                |
+| Provider health      | `<ProviderHealth>`     | `ui`        | ai-gateway:HealthMonitor       |
+| Cost ticker          | `<CostTicker>`         | `ui`        | ai-gateway:TokenTracker        |
+| **Command Palette**  |                        |             |                                |
+| Fuzzy command search | `<CommandPalette>`     | `ui`        | kernel:CommandBus              |
 
 ### 3.3 UX Principles
 
@@ -282,13 +288,13 @@ Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
 ### 3.4 Critical UX Flows
 
-| Flow | Steps | Key Surfaces |
-|------|-------|-------------|
+| Flow                     | Steps                                                                                                                | Key Surfaces                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | **Agent task execution** | User types prompt → Agent plans → Shows plan for approval → Executes steps → Shows diffs → User accepts/rejects each | Chat, AgentPanel, DiffReview, ApprovalQueue |
-| **Provider failover** | Primary fails → Health indicator goes yellow → Fallback engages → Cost ticker updates → User notified | ProviderHealth, CostTicker, OutputLog |
-| **Budget warning** | Cost approaches limit → CostTicker turns amber → Hard limit → Agent paused → User decides | CostDashboard, CostTicker, ApprovalQueue |
-| **Checkpoint rollback** | Agent makes bad edit → User clicks checkpoint in timeline → State restores → Editor updates | CheckpointTimeline, EditorTabs, AgentPanel |
-| **MCP tool discovery** | User connects MCP server → Tools appear in registry → Agent can use them → Approval for new tools | SkillBrowser, AgentPanel, ApprovalQueue |
+| **Provider failover**    | Primary fails → Health indicator goes yellow → Fallback engages → Cost ticker updates → User notified                | ProviderHealth, CostTicker, OutputLog       |
+| **Budget warning**       | Cost approaches limit → CostTicker turns amber → Hard limit → Agent paused → User decides                            | CostDashboard, CostTicker, ApprovalQueue    |
+| **Checkpoint rollback**  | Agent makes bad edit → User clicks checkpoint in timeline → State restores → Editor updates                          | CheckpointTimeline, EditorTabs, AgentPanel  |
+| **MCP tool discovery**   | User connects MCP server → Tools appear in registry → Agent can use them → Approval for new tools                    | SkillBrowser, AgentPanel, ApprovalQueue     |
 
 ---
 
@@ -296,19 +302,20 @@ Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
 ### 4.1 Current Test Coverage Summary
 
-| Category | Files | Tests | Pass | Status |
-|----------|-------|-------|------|--------|
-| Kernel subsystems | 8 | 90 | 90 | Complete |
-| AI Gateway | 7 | 111 | 111 | Complete |
-| Context Engine | 5 | 66 | 66 | Complete |
-| Agent Core | 5 | 80 | 80 | Complete |
-| Desktop IPC | 3 | 19 | 19 | Complete |
-| Test Harness | 1 | 6 | 6 | Complete |
-| **Total** | **29** | **372** | **372** | |
+| Category          | Files  | Tests   | Pass    | Status   |
+| ----------------- | ------ | ------- | ------- | -------- |
+| Kernel subsystems | 8      | 90      | 90      | Complete |
+| AI Gateway        | 7      | 111     | 111     | Complete |
+| Context Engine    | 5      | 66      | 66      | Complete |
+| Agent Core        | 5      | 80      | 80      | Complete |
+| Desktop IPC       | 3      | 19      | 19      | Complete |
+| Test Harness      | 1      | 6       | 6       | Complete |
+| **Total**         | **29** | **372** | **372** |          |
 
 ### 4.2 Test Quality Assessment
 
 **Strengths:**
+
 - Behavioral testing throughout — tests target public APIs, not internals
 - Error paths well-covered: duplicate registration, unknown IDs, budget exceeded, provider failures, circular deps
 - Edge cases present: empty graphs, self-loops, SSE `\r\n`, expired entries, stale active files
@@ -317,88 +324,88 @@ Legend: ✅ Shipped | 🔨 Partial/planned | ❌ Not available
 
 **Structural Gaps:**
 
-| Gap | Severity | Where Needed |
-|-----|----------|-------------|
-| No integration tests (cross-package) | High | agent-core → ai-gateway → context-engine |
-| No concurrent/parallel tests | Medium | EventBus, AgentLoop, EventStream |
-| No performance/stress tests | Medium | SymbolIndex (10k files), EventStream (10k events) |
-| No persistence round-trip tests | High | All in-memory stores (once SQLite added) |
-| No mid-stream error tests | Medium | SSE streaming (connection drop after N chunks) |
-| Desktop error-path coverage thin | Low | 1 error test for 10 handlers |
-| No end-to-end agent scenario | High | Full plan-act-observe loop with real tools |
+| Gap                                  | Severity | Where Needed                                      |
+| ------------------------------------ | -------- | ------------------------------------------------- |
+| No integration tests (cross-package) | High     | agent-core → ai-gateway → context-engine          |
+| No concurrent/parallel tests         | Medium   | EventBus, AgentLoop, EventStream                  |
+| No performance/stress tests          | Medium   | SymbolIndex (10k files), EventStream (10k events) |
+| No persistence round-trip tests      | High     | All in-memory stores (once SQLite added)          |
+| No mid-stream error tests            | Medium   | SSE streaming (connection drop after N chunks)    |
+| Desktop error-path coverage thin     | Low      | 1 error test for 10 handlers                      |
+| No end-to-end agent scenario         | High     | Full plan-act-observe loop with real tools        |
 
 ### 4.3 Required Test Plan by Feature
 
 #### 4.3.1 Functional Tests (per subsystem)
 
-| Subsystem | Required Tests | Priority |
-|-----------|---------------|----------|
-| **Kernel** | ✅ Complete (90 tests) | — |
-| **AI Gateway** | ✅ Complete (111 tests) | — |
-| **AI Gateway** — add: cache token pricing, per-request retry/backoff | 4 tests | P2 |
-| **Context Engine** — existing | ✅ Complete for implemented code (66 tests) | — |
-| **Context Engine** — add: tree-sitter parsing, embedding store, RAG retrieval | ~30 tests | P1 |
-| **Agent Core** — existing | ✅ Complete for implemented code (80 tests) | — |
-| **Agent Core** — add: task graph, subagent spawn/isolation, mode presets | ~40 tests | P1 |
-| **Desktop** — add: event:subscribe handler, error paths for all handlers | ~15 tests | P2 |
-| **Task Graph** | Full suite: graph executor, state reducers, concurrent nodes, retry | ~50 tests | P1 |
-| **MCP** | Client connect, tool discovery, schema validation, error recovery | ~30 tests | P1 |
-| **Git Tools** | Status, commit, push, pull, branch, checkout, PR create | ~25 tests | P1 |
-| **Remote** | SSH auth, SFTP transfer, tunnel lifecycle, Docker client | ~30 tests | P2 |
-| **Skills** | Manifest parse, install/uninstall, sandbox, permission scoping | ~25 tests | P2 |
-| **Model Lab** | Catalog, benchmark harness, job runner, hardware profiler | ~20 tests | P3 |
+| Subsystem                                                                     | Required Tests                                                      | Priority  |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------- | --- |
+| **Kernel**                                                                    | ✅ Complete (90 tests)                                              | —         |
+| **AI Gateway**                                                                | ✅ Complete (111 tests)                                             | —         |
+| **AI Gateway** — add: cache token pricing, per-request retry/backoff          | 4 tests                                                             | P2        |
+| **Context Engine** — existing                                                 | ✅ Complete for implemented code (66 tests)                         | —         |
+| **Context Engine** — add: tree-sitter parsing, embedding store, RAG retrieval | ~30 tests                                                           | P1        |
+| **Agent Core** — existing                                                     | ✅ Complete for implemented code (80 tests)                         | —         |
+| **Agent Core** — add: task graph, subagent spawn/isolation, mode presets      | ~40 tests                                                           | P1        |
+| **Desktop** — add: event:subscribe handler, error paths for all handlers      | ~15 tests                                                           | P2        |
+| **Task Graph**                                                                | Full suite: graph executor, state reducers, concurrent nodes, retry | ~50 tests | P1  |
+| **MCP**                                                                       | Client connect, tool discovery, schema validation, error recovery   | ~30 tests | P1  |
+| **Git Tools**                                                                 | Status, commit, push, pull, branch, checkout, PR create             | ~25 tests | P1  |
+| **Remote**                                                                    | SSH auth, SFTP transfer, tunnel lifecycle, Docker client            | ~30 tests | P2  |
+| **Skills**                                                                    | Manifest parse, install/uninstall, sandbox, permission scoping      | ~25 tests | P2  |
+| **Model Lab**                                                                 | Catalog, benchmark harness, job runner, hardware profiler           | ~20 tests | P3  |
 
 #### 4.3.2 Integration Tests
 
-| Scenario | Components | Tests | Priority |
-|----------|-----------|-------|----------|
-| Agent executes tool via gateway | agent-core → ai-gateway | 5 | P1 |
-| Context assembly feeds agent | context-engine → agent-core | 5 | P1 |
-| Full agent loop with checkpoint/rollback | agent-core + checkpoint + event-stream | 3 | P1 |
-| MCP tool appears in agent registry | mcp → agent-core → tool-registry | 3 | P1 |
-| Budget enforcement pauses agent | ai-gateway:cost → agent-core:loop | 3 | P2 |
-| Fallback during agent execution | ai-gateway:fallback → agent-core | 3 | P2 |
-| IPC round-trip (renderer → main → kernel) | desktop → kernel | 5 | P2 |
+| Scenario                                  | Components                             | Tests | Priority |
+| ----------------------------------------- | -------------------------------------- | ----- | -------- |
+| Agent executes tool via gateway           | agent-core → ai-gateway                | 5     | P1       |
+| Context assembly feeds agent              | context-engine → agent-core            | 5     | P1       |
+| Full agent loop with checkpoint/rollback  | agent-core + checkpoint + event-stream | 3     | P1       |
+| MCP tool appears in agent registry        | mcp → agent-core → tool-registry       | 3     | P1       |
+| Budget enforcement pauses agent           | ai-gateway:cost → agent-core:loop      | 3     | P2       |
+| Fallback during agent execution           | ai-gateway:fallback → agent-core       | 3     | P2       |
+| IPC round-trip (renderer → main → kernel) | desktop → kernel                       | 5     | P2       |
 
 #### 4.3.3 Performance Tests
 
-| Test | Target | Metric |
-|------|--------|--------|
-| SymbolIndex 10k files | context-engine | Index build <30s, query <2s |
-| EventStream 10k events | agent-core | Append <1ms, query <10ms |
-| PageRank 5k nodes | context-engine | Converge <5s |
-| Provider registry 50 providers | ai-gateway | Route <1ms |
-| Checkpoint create/restore | agent-core | <50ms for typical state |
+| Test                           | Target         | Metric                      |
+| ------------------------------ | -------------- | --------------------------- |
+| SymbolIndex 10k files          | context-engine | Index build <30s, query <2s |
+| EventStream 10k events         | agent-core     | Append <1ms, query <10ms    |
+| PageRank 5k nodes              | context-engine | Converge <5s                |
+| Provider registry 50 providers | ai-gateway     | Route <1ms                  |
+| Checkpoint create/restore      | agent-core     | <50ms for typical state     |
 
 #### 4.3.4 Agentic Tests (eval-style)
 
-| Scenario | What to Measure | Target |
-|----------|----------------|--------|
-| 5-step planning task | Agent completes all steps without stalling | 100% |
-| Risky tool rejection | Agent respects approval denial, tries alternative | 100% |
-| Budget exhaustion | Agent degrades gracefully or pauses | 100% |
-| Provider failure mid-task | Agent falls back and continues | 100% |
-| Checkpoint rollback after bad edit | State fully restored, no corruption | 100% |
-| Concurrent subagent tasks | No memory leakage, correct merge | 100% |
+| Scenario                           | What to Measure                                   | Target |
+| ---------------------------------- | ------------------------------------------------- | ------ |
+| 5-step planning task               | Agent completes all steps without stalling        | 100%   |
+| Risky tool rejection               | Agent respects approval denial, tries alternative | 100%   |
+| Budget exhaustion                  | Agent degrades gracefully or pauses               | 100%   |
+| Provider failure mid-task          | Agent falls back and continues                    | 100%   |
+| Checkpoint rollback after bad edit | State fully restored, no corruption               | 100%   |
+| Concurrent subagent tasks          | No memory leakage, correct merge                  | 100%   |
 
 #### 4.3.5 Accessibility Tests (GUI phase)
 
-| Test | Standard |
-|------|----------|
-| All interactive elements keyboard-reachable | WCAG 2.1 AA |
-| Focus indicators visible in all themes | WCAG 2.1 AA |
-| Color contrast ratios | 4.5:1 text, 3:1 large text |
-| Screen reader landmarks for all panels | ARIA roles |
-| No information conveyed by color alone | WCAG 2.1 AA |
+| Test                                        | Standard                   |
+| ------------------------------------------- | -------------------------- |
+| All interactive elements keyboard-reachable | WCAG 2.1 AA                |
+| Focus indicators visible in all themes      | WCAG 2.1 AA                |
+| Color contrast ratios                       | 4.5:1 text, 3:1 large text |
+| Screen reader landmarks for all panels      | ARIA roles                 |
+| No information conveyed by color alone      | WCAG 2.1 AA                |
 
 #### 4.3.6 Visual Tests (GUI phase)
 
-| Test | Tool |
-|------|------|
-| Component snapshots (all 3 themes) | Vitest + snapshot |
-| Panel layout at 1280×720, 1920×1080, 3840×2160 | Playwright |
-| Diff review readability | Manual review |
-| Status bar legibility at 100%/125%/150% DPI | Playwright |
+| Test                                           | Tool              |
+| ---------------------------------------------- | ----------------- |
+| Component snapshots (all 3 themes)             | Vitest + snapshot |
+| Panel layout at 1280×720, 1920×1080, 3840×2160 | Playwright        |
+| Diff review readability                        | Manual review     |
+| Status bar legibility at 100%/125%/150% DPI    | Playwright        |
 
 ---
 
@@ -428,16 +435,16 @@ Current state (2026-04-14):
 
 #### Revised Order (Backend Priority)
 
-| # | Milestone | Packages | Key Deliverables | Est. Tests |
-|---|-----------|----------|-----------------|-----------|
-| **M5b** | Agent Core Completion | `agent-core`, `task-graph`, `agent-runner` | Task graph executor, subagent spawner, built-in modes, agent-runner process | ~60 new |
-| **M6** | Git + Terminal | `git-tools`, `terminal` (backend only) | Git status/commit/push/PR, node-pty bridge, agent command execution | ~50 new |
-| **M7** | MCP + Skills | `mcp`, `skills` | MCP client, tool bridge, skill manifest, installer, sandbox | ~55 new |
-| **M4b** | Context Engine Completion | `context-engine` | Tree-sitter parser, embedding store, RAG retriever | ~30 new |
-| **M8** | Remote/DevOps | `remote` | SSH, SFTP, tunnels, Docker, deploy, audit logger | ~30 new |
-| **M9** | Model Lab | `model-lab` | Model catalog, benchmarks, job runner, hardware profiler | ~20 new |
-| **M10** | SQLite Persistence | All packages | Replace all in-memory stores with SQLite, WAL mode, migration system | ~40 new |
-| **M11** | GUI Layer | `ui`, `editor`, `workspace`, `terminal` (renderer), `preview` | Full GUI per surface spec in section 3 | ~100 new |
+| #       | Milestone                 | Packages                                                      | Key Deliverables                                                            | Est. Tests |
+| ------- | ------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------- |
+| **M5b** | Agent Core Completion     | `agent-core`, `task-graph`, `agent-runner`                    | Task graph executor, subagent spawner, built-in modes, agent-runner process | ~60 new    |
+| **M6**  | Git + Terminal            | `git-tools`, `terminal` (backend only)                        | Git status/commit/push/PR, node-pty bridge, agent command execution         | ~50 new    |
+| **M7**  | MCP + Skills              | `mcp`, `skills`                                               | MCP client, tool bridge, skill manifest, installer, sandbox                 | ~55 new    |
+| **M4b** | Context Engine Completion | `context-engine`                                              | Tree-sitter parser, embedding store, RAG retriever                          | ~30 new    |
+| **M8**  | Remote/DevOps             | `remote`                                                      | SSH, SFTP, tunnels, Docker, deploy, audit logger                            | ~30 new    |
+| **M9**  | Model Lab                 | `model-lab`                                                   | Model catalog, benchmarks, job runner, hardware profiler                    | ~20 new    |
+| **M10** | SQLite Persistence        | All packages                                                  | Replace all in-memory stores with SQLite, WAL mode, migration system        | ~40 new    |
+| **M11** | GUI Layer                 | `ui`, `editor`, `workspace`, `terminal` (renderer), `preview` | Full GUI per surface spec in section 3                                      | ~100 new   |
 
 #### Rationale for Reorder
 
@@ -450,14 +457,14 @@ Current state (2026-04-14):
 
 ### 5.3 Updated Completion Estimate
 
-| Metric | Value |
-|--------|-------|
-| Implemented packages (non-stub) | 6 of 17 + 1 of 2 apps |
-| Total tests | 372 |
-| Backend completion | ~40% |
-| Overall completion | ~30% |
-| Remaining backend milestones | 8 (M5b, M6, M7, M4b, M8, M9, M10, integration) |
-| Remaining GUI milestones | 1 (M11) |
+| Metric                          | Value                                          |
+| ------------------------------- | ---------------------------------------------- |
+| Implemented packages (non-stub) | 6 of 17 + 1 of 2 apps                          |
+| Total tests                     | 372                                            |
+| Backend completion              | ~40%                                           |
+| Overall completion              | ~30%                                           |
+| Remaining backend milestones    | 8 (M5b, M6, M7, M4b, M8, M9, M10, integration) |
+| Remaining GUI milestones        | 1 (M11)                                        |
 
 ---
 
@@ -465,16 +472,16 @@ Current state (2026-04-14):
 
 The following entries in `MASTER-ACTION-PLAN.md` are stale:
 
-| Section | Current | Should Be |
-|---------|---------|-----------|
-| Header: Current branch | `feat/context-engine` | `main` |
-| Header: Overall completion | ~35% backend, ~28% total | ~40% backend, ~30% total |
-| Section 4 | Missing M4 and M5 entries | Add Context Engine and Agent Core as done |
-| Section 5: M3 | Shows as "DONE" | Correct |
-| Section 5: M4 | Shows as "IN PROGRESS" | Should be "PARTIAL (merged)" |
-| Section 5: M5 | Shows as next priority | Should be "PARTIAL (merged)" |
-| Section 6: Package map | ai-gateway "In progress", context-engine "Stub", agent-core "Stub" | All three "Done (partial for M4/M5)" |
-| Section 10: Open PR | `feat/ai-gateway` (active) | All PRs merged (#1-#5) |
+| Section                    | Current                                                            | Should Be                                 |
+| -------------------------- | ------------------------------------------------------------------ | ----------------------------------------- |
+| Header: Current branch     | `feat/context-engine`                                              | `main`                                    |
+| Header: Overall completion | ~35% backend, ~28% total                                           | ~40% backend, ~30% total                  |
+| Section 4                  | Missing M4 and M5 entries                                          | Add Context Engine and Agent Core as done |
+| Section 5: M3              | Shows as "DONE"                                                    | Correct                                   |
+| Section 5: M4              | Shows as "IN PROGRESS"                                             | Should be "PARTIAL (merged)"              |
+| Section 5: M5              | Shows as next priority                                             | Should be "PARTIAL (merged)"              |
+| Section 6: Package map     | ai-gateway "In progress", context-engine "Stub", agent-core "Stub" | All three "Done (partial for M4/M5)"      |
+| Section 10: Open PR        | `feat/ai-gateway` (active)                                         | All PRs merged (#1-#5)                    |
 
 ---
 
@@ -482,19 +489,19 @@ The following entries in `MASTER-ACTION-PLAN.md` are stale:
 
 All 11 stub packages contain only `export {}` in `src/index.ts` and have `--passWithNoTests` in their test script.
 
-| Package | Milestone | Purpose |
-|---------|-----------|---------|
-| `task-graph` | M5b | DAG orchestration, state reducers |
-| `git-tools` | M6 | Git operations |
-| `terminal` | M6 | xterm.js + node-pty |
-| `mcp` | M7 | MCP client, tool bridge |
-| `skills` | M7 | Skill runtime, installer |
-| `remote` | M8 | SSH, SFTP, tunnels, Docker |
-| `model-lab` | M9 | Model catalog, benchmarks |
-| `editor` | M11 | Monaco integration |
-| `workspace` | M11 | File tree, project management |
-| `preview` | M11 | Webview, WebContainers |
-| `ui` | M11 | Shared React components |
+| Package      | Milestone | Purpose                           |
+| ------------ | --------- | --------------------------------- |
+| `task-graph` | M5b       | DAG orchestration, state reducers |
+| `git-tools`  | M6        | Git operations                    |
+| `terminal`   | M6        | xterm.js + node-pty               |
+| `mcp`        | M7        | MCP client, tool bridge           |
+| `skills`     | M7        | Skill runtime, installer          |
+| `remote`     | M8        | SSH, SFTP, tunnels, Docker        |
+| `model-lab`  | M9        | Model catalog, benchmarks         |
+| `editor`     | M11       | Monaco integration                |
+| `workspace`  | M11       | File tree, project management     |
+| `preview`    | M11       | Webview, WebContainers            |
+| `ui`         | M11       | Shared React components           |
 
 ## Appendix B: File Counts
 

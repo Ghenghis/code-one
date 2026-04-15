@@ -203,9 +203,11 @@ describe("AIGateway", () => {
       p2.chatFn.mockResolvedValue(makeResponse("p2"));
       gw.registerProvider(p2, [makeProfile("p2")]);
 
-      gw.setFallbackChain(makeChain({
-        chain: [makeProfile("p1"), makeProfile("p2")],
-      }));
+      gw.setFallbackChain(
+        makeChain({
+          chain: [makeProfile("p1"), makeProfile("p2")],
+        }),
+      );
 
       const result = await gw.chat(makeRequest());
       expect(result.providerId).toBe("p2");

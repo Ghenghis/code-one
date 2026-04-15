@@ -170,10 +170,13 @@ describe("TokenTracker", () => {
 
   describe("enforceBudget()", () => {
     it("throws BudgetExceededError when block strategy and over budget", () => {
-      const tracker = new TokenTracker("session-1", makeBudget({
-        sessionLimitUsd: 0.01,
-        onExceeded: "block",
-      }));
+      const tracker = new TokenTracker(
+        "session-1",
+        makeBudget({
+          sessionLimitUsd: 0.01,
+          onExceeded: "block",
+        }),
+      );
       tracker.registerProfile(makeProfile());
       tracker.record("openai", "gpt-4o", makeUsage(1000, 500));
 
@@ -181,10 +184,13 @@ describe("TokenTracker", () => {
     });
 
     it("returns exceeded status without throwing for warn strategy", () => {
-      const tracker = new TokenTracker("session-1", makeBudget({
-        sessionLimitUsd: 0.01,
-        onExceeded: "warn",
-      }));
+      const tracker = new TokenTracker(
+        "session-1",
+        makeBudget({
+          sessionLimitUsd: 0.01,
+          onExceeded: "warn",
+        }),
+      );
       tracker.registerProfile(makeProfile());
       tracker.record("openai", "gpt-4o", makeUsage(1000, 500));
 
@@ -193,10 +199,13 @@ describe("TokenTracker", () => {
     });
 
     it("returns exceeded status without throwing for downgrade-model strategy", () => {
-      const tracker = new TokenTracker("session-1", makeBudget({
-        sessionLimitUsd: 0.01,
-        onExceeded: "downgrade-model",
-      }));
+      const tracker = new TokenTracker(
+        "session-1",
+        makeBudget({
+          sessionLimitUsd: 0.01,
+          onExceeded: "downgrade-model",
+        }),
+      );
       tracker.registerProfile(makeProfile());
       tracker.record("openai", "gpt-4o", makeUsage(1000, 500));
 
@@ -205,10 +214,13 @@ describe("TokenTracker", () => {
     });
 
     it("returns ok when within budget", () => {
-      const tracker = new TokenTracker("session-1", makeBudget({
-        sessionLimitUsd: 100,
-        onExceeded: "block",
-      }));
+      const tracker = new TokenTracker(
+        "session-1",
+        makeBudget({
+          sessionLimitUsd: 100,
+          onExceeded: "block",
+        }),
+      );
       tracker.registerProfile(makeProfile());
       tracker.record("openai", "gpt-4o", makeUsage(1000, 500));
 

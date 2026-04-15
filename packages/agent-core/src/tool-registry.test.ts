@@ -16,7 +16,12 @@ function tool(id: string, overrides?: Partial<ToolDefinition>): ToolDefinition {
   };
 }
 
-function mode(id: string, allow: string[] = ["*"], deny: string[] = [], defaultPolicy: "allow" | "deny" | "prompt" = "deny"): ModeDefinition {
+function mode(
+  id: string,
+  allow: string[] = ["*"],
+  deny: string[] = [],
+  defaultPolicy: "allow" | "deny" | "prompt" = "deny",
+): ModeDefinition {
   return {
     id: id as ModeDefinition["id"],
     label: id,

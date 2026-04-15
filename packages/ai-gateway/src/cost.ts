@@ -70,11 +70,7 @@ export class TokenTracker {
    * Record a completed request.
    * Returns the cost record. Throws BudgetExceededError if onExceeded is "block".
    */
-  record(
-    providerId: ProviderId,
-    modelId: string,
-    usage: TokenUsage,
-  ): CostRecord {
+  record(providerId: ProviderId, modelId: string, usage: TokenUsage): CostRecord {
     const profile = this._profiles.get(`${providerId}:${modelId}`);
     const costUsd = profile ? computeCost(usage, profile) : 0;
 
@@ -97,7 +93,9 @@ export class TokenTracker {
    * Returns "ok" if within budget, or the exceeded kind.
    * Does NOT throw — call this before making a request to decide what to do.
    */
-  checkBudget(): { status: "ok" } | { status: "exceeded"; kind: "session" | "daily"; currentUsd: number; limitUsd: number } {
+  checkBudget():
+    | { status: "ok" }
+    | { status: "exceeded"; kind: "session" | "daily"; currentUsd: number; limitUsd: number } {
     const sessionTotal = this.sessionTotalUsd();
     if (this._budget.sessionLimitUsd > 0 && sessionTotal >= this._budget.sessionLimitUsd) {
       return {
@@ -125,7 +123,9 @@ export class TokenTracker {
    * Enforce the budget — throws if exceeded and strategy is "block".
    * Returns the check result otherwise.
    */
-  enforceBudget(): { status: "ok" } | { status: "exceeded"; kind: "session" | "daily"; currentUsd: number; limitUsd: number } {
+  enforceBudget():
+    | { status: "ok" }
+    | { status: "exceeded"; kind: "session" | "daily"; currentUsd: number; limitUsd: number } {
     const check = this.checkBudget();
     if (check.status === "exceeded" && this._budget.onExceeded === "block") {
       throw new BudgetExceededError(check.kind, check.currentUsd, check.limitUsd);
@@ -147,9 +147,7 @@ export class TokenTracker {
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
     const ts = todayStart.getTime();
-    return this._records
-      .filter((r) => r.timestamp >= ts)
-      .reduce((sum, r) => sum + r.costUsd, 0);
+    return this._records.filter((r) => r.timestamp >= ts).reduce((sum, r) => sum + r.costUsd, 0);
   }
 
   /** Total tokens across all records. */

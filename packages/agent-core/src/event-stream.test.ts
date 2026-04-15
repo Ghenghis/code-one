@@ -201,12 +201,9 @@ describe("EventStream", () => {
 
 describe("createEvent", () => {
   it("creates an event with ID, timestamp, and correct fields", () => {
-    const event = createEvent<UserMessageEvent>(
-      "user:message",
-      "session-1",
-      "user",
-      { text: "hi" },
-    );
+    const event = createEvent<UserMessageEvent>("user:message", "session-1", "user", {
+      text: "hi",
+    });
 
     expect(event.id).toMatch(/^evt_/);
     expect(event.timestamp).toBeGreaterThan(0);

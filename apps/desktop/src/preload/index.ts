@@ -3,8 +3,7 @@ import type { CodeOneAPI } from "./api.js";
 import type { BaseEvent } from "@code-one/shared-types";
 
 const api: CodeOneAPI = {
-  executeCommand: (commandId, args) =>
-    ipcRenderer.invoke("command:execute", { commandId, args }),
+  executeCommand: (commandId, args) => ipcRenderer.invoke("command:execute", { commandId, args }),
 
   listCommands: () => ipcRenderer.invoke("command:list"),
 
@@ -22,11 +21,9 @@ const api: CodeOneAPI = {
 
   getSetting: (key) => ipcRenderer.invoke("settings:get", { key }),
 
-  setSetting: (key, value, scope) =>
-    ipcRenderer.invoke("settings:set", { key, value, scope }),
+  setSetting: (key, value, scope) => ipcRenderer.invoke("settings:set", { key, value, scope }),
 
-  getSettingsScope: (scope) =>
-    ipcRenderer.invoke("settings:get-scope", { scope }),
+  getSettingsScope: (scope) => ipcRenderer.invoke("settings:get-scope", { scope }),
 
   getLayout: () => ipcRenderer.invoke("layout:get"),
 
@@ -34,17 +31,13 @@ const api: CodeOneAPI = {
 
   listModules: () => ipcRenderer.invoke("module:list"),
 
-  checkPermission: (request) =>
-    ipcRenderer.invoke("permission:check", request),
+  checkPermission: (request) => ipcRenderer.invoke("permission:check", request),
 
-  readFile: (filePath) =>
-    ipcRenderer.invoke("fs:read-file", { filePath }),
+  readFile: (filePath) => ipcRenderer.invoke("fs:read-file", { filePath }),
 
-  writeFile: (filePath, content) =>
-    ipcRenderer.invoke("fs:write-file", { filePath, content }),
+  writeFile: (filePath, content) => ipcRenderer.invoke("fs:write-file", { filePath, content }),
 
-  listDirectory: (dirPath) =>
-    ipcRenderer.invoke("fs:list-dir", { dirPath }),
+  listDirectory: (dirPath) => ipcRenderer.invoke("fs:list-dir", { dirPath }),
 
   openFolder: () => ipcRenderer.invoke("dialog:open-folder"),
 

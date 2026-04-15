@@ -20,7 +20,9 @@ export function StatusBar({ tab, tabCount }: StatusBarProps) {
         )}
       </div>
       <div className="status-bar__right">
-        <span className="status-bar__item">{tabCount} tab{tabCount !== 1 ? "s" : ""}</span>
+        <span className="status-bar__item">
+          {tabCount} tab{tabCount !== 1 ? "s" : ""}
+        </span>
       </div>
     </div>
   );

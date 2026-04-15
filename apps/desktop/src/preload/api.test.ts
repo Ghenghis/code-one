@@ -17,6 +17,7 @@ describe("Preload API shape", () => {
       "checkPermission",
       "readFile",
       "writeFile",
+      "listDirectory",
       "openFolder",
       "openFileDialog",
     ];
@@ -26,6 +27,6 @@ describe("Preload API shape", () => {
   });
 
   it("method count matches expected", () => {
-    expect(API_METHODS.length).toBe(15);
+    expect(API_METHODS.length).toBe(16);
   });
 });

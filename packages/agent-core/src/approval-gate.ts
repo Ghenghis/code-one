@@ -1,8 +1,4 @@
-import type {
-  ApprovalState,
-  TrustLevel,
-  ToolDefinition,
-} from "@code-one/shared-types";
+import type { ApprovalState, TrustLevel, ToolDefinition } from "@code-one/shared-types";
 
 /**
  * Pending approval request tracked by the gate.
@@ -37,10 +33,7 @@ export class ApprovalGate {
   /**
    * Check whether a tool call requires approval.
    */
-  requiresApproval(
-    tool: ToolDefinition,
-    trustLevel: TrustLevel,
-  ): boolean {
+  requiresApproval(tool: ToolDefinition, trustLevel: TrustLevel): boolean {
     // Remote trust always needs approval
     if (trustLevel === "remote") return true;
 
@@ -64,11 +57,7 @@ export class ApprovalGate {
    * Request approval for an action. Returns the approval ID.
    * If approval is not required, returns an auto-approved state.
    */
-  request(
-    tool: ToolDefinition,
-    trustLevel: TrustLevel,
-    description: string,
-  ): PendingApproval {
+  request(tool: ToolDefinition, trustLevel: TrustLevel, description: string): PendingApproval {
     const id = `approval_${++this._idCounter}`;
 
     if (!this.requiresApproval(tool, trustLevel)) {
