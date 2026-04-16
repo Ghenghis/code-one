@@ -1,0 +1,69 @@
+.palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  padding-top: 80px;
+}
+
+.palette {
+  width: 500px;
+  max-height: 340px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.palette__input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.palette__input::placeholder {
+  color: var(--text-secondary);
+}
+
+.palette__list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.palette__item {
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.palette__item:hover {
+  background: var(--bg-tertiary);
+}
+
+.palette__item--selected {
+  background: var(--accent);
+  color: var(--text-active);
+}
+
+.palette__item--selected:hover {
+  background: var(--accent-hover);
+}
+
+.palette__empty {
+  padding: 12px 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+}
